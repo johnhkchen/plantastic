@@ -4,7 +4,7 @@ epic: E-014
 title: Scan Processing CLI & Sample Pipeline
 status: open
 priority: high
-tickets: [T-032-01, T-032-02]
+tickets: [T-032-01, T-032-02, T-032-03]
 ---
 
 ## Goal

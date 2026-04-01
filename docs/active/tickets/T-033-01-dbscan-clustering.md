@@ -21,6 +21,7 @@ Obstacle points from pt-scan are an undifferentiated cloud. DBSCAN (Density-Base
 - ClusterConfig: epsilon (neighborhood radius), min_points (cluster minimum)
 - Noise points (not in any cluster) assigned to a special noise cluster or discarded
 - Default config tuned for outdoor scans: epsilon=0.3m, min_points=50
+- **Powell & Market validation: should produce exactly 2 clusters (the two tree trunks)**
 - Unit tests:
   - Two well-separated groups → two clusters
   - Sparse noise between groups → noise, not merged

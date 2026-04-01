@@ -8,37 +8,40 @@ sprint: 2
 
 ## Context
 
-The scan pipeline (pt-scan) processes PLY files into classified point clouds and terrain meshes, but it has no idea *what* the obstacles are. A tree, a fence, a bench, a trolley pole — all just "points above the ground plane." The "wow" moment is when the system looks at a scan and says: "I see a 25-foot London Plane tree, a concrete sidewalk slab, and a metal transit shelter."
+The scan pipeline (pt-scan) processes PLY files into classified point clouds and terrain meshes, but it has no idea *what* the obstacles are. Everything above the ground plane is just "obstacle points." The goal is to cluster those points into distinct features, use BAML to classify them efficiently, and export the result to the Bevy viewer — proving the full PLY → design pipeline.
 
-This is the most differentiating capability in the product. It combines:
-1. Geometric analysis (clustering, bounding boxes, height/spread, color histograms)
-2. LLM interpretation (BAML-powered domain-expert classification)
-3. Multimodal vision (plan-view image analysis)
-4. Cross-referencing (satellite baseline reconciliation)
+### Why BAML for feature detection?
 
-## Architecture
+Traditional point cloud classification uses expensive compute: PointNet/PointNet++ neural networks, random forest classifiers trained on labeled datasets, or hand-tuned geometric heuristics that break on new environments. BAML offers a different approach:
+
+1. **Cheap geometric clustering first** — DBSCAN with a spatial index is O(n log n). This produces a small number of feature candidates (5-50 per scan).
+2. **LLM classifies the candidates, not the points** — the LLM sees structured summaries (height, spread, color, shape), not millions of coordinates. One API call classifies all features.
+3. **The LLM suggests clustering refinement** — "clusters 3 and 4 are probably the same tree canopy, merge them" or "cluster 7 is too large, likely two objects." This replaces iterative parameter tuning.
+4. **Domain knowledge is free** — the LLM knows that a 6-ft vertical cylinder with brown color at Powell & Market is probably a tree trunk, without training data.
+
+This is compute-efficient because the heavy work (parsing, downsampling, ground plane) is pure geometry, and the expensive reasoning (what *is* this?) is a single structured LLM call on a few KB of JSON, not a GPU inference pass on millions of points.
+
+### Sample data
+
+`assets/scans/samples/` — Powell & Market cable car turnaround (SiteScape, 20.5M vertices, binary LE PLY with RGB). **Minimal scene: two tree trunks and brick paths.** No canopy, no complex structures. This is the ideal baseline:
+- Does RANSAC correctly separate brick paths from trunks?
+- Does clustering produce exactly 2 clusters?
+- Can BAML identify "tree trunk" from just a vertical cylinder with bark color?
+- Does the full pipeline → Bevy viewer render something sensible?
+
+### End-to-end goal
 
 ```
 PLY file
-  → pt-scan::process_scan() (existing)
-  → ClassifiedCloud { ground, obstacles }
-  │
-  ├─ Tier 1: Geometric clustering (DBSCAN)
-  │    → FeatureCandidate[] { bbox, height, spread, color, shape }
-  │    → BAML ClassifyFeatures() → ClassifiedFeature[]
-  │
-  ├─ Tier 2: Plan-view analysis (multimodal)
-  │    → plan_view.png (existing)
-  │    → BAML AnalyzePlanView() → SiteAnalysis
-  │
-  └─ Tier 3: Satellite reconciliation
-       → pt-satellite baseline + scan features + plan view
-       → BAML ReconcileSiteData() → ReconciledSite
+  → pt-scan::process_scan()          [existing, geometry]
+  → DBSCAN clustering on obstacles   [new, geometry]
+  → FeatureCandidate[] summaries     [new, structured data]
+  → BAML ClassifyFeatures()          [new, single LLM call]
+  → ClassifiedFeature[]              [labels, confidence, reasoning]
+  → pt-scene::generate_scene()       [existing stub, wire up]
+  → glTF .glb                        [features as named meshes]
+  → Bevy viewer                      [existing, loads glTF via postMessage]
 ```
-
-## Sample Data
-
-`assets/scans/samples/` — Powell & Market cable car turnaround (SiteScape, 20.5M vertices, binary LE PLY with RGB). Urban environment: trees, transit infrastructure, hardscape, elevation changes.
 
 ## Stories
 
@@ -49,10 +52,11 @@ PLY file
 
 ## Success Criteria
 
-- Process real 20M-point PLY in < 60s
-- Cluster obstacles into distinct features with bounding boxes
-- BAML classifies features with species/type identification and confidence scores
-- Plan-view PNG with feature labels overlaid
-- S.1.1 advances integration level (scan → classified features → visual output)
-- All BAML calls mockable (ClaudeCliGenerator for dev, MockProposalGenerator pattern for CI)
+- Process real 20M-point PLY end-to-end: PLY → classified features → glTF → Bevy viewer
+- Powell & Market scan produces exactly 2 feature clusters (the two trunks)
+- BAML classifies both as tree trunks with reasonable confidence
+- Annotated plan-view PNG shows labeled features on the brick path ground plane
+- BAML call is a single request with <5KB of structured JSON (not raw points)
+- S.1.1 advances integration level
+- All BAML calls mockable (ClaudeCliGenerator for dev, fixture-based for CI)
 - `just check` passes

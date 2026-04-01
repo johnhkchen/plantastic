@@ -25,10 +25,13 @@ The BAML ClassifyFeatures function takes geometric FeatureCandidate summaries an
   - ClaudeCliClassifier: claude CLI (subscription dev)
   - MockFeatureClassifier: fixture-based (CI)
 - Run on Powell & Market candidates, capture output as fixture
-- Prompt tuned for SF Bay Area urban landscape:
-  - Market Street tree species: London Plane (Platanus × acerifolia), Brisbane Box (Lophostemon confertus)
-  - Transit infrastructure: Muni overhead wires, shelters, signal poles
-  - Hardscape: concrete sidewalk, granite curb, brick paving
+- **Powell & Market validation**: two trunk clusters → both classified as "tree trunk" with high confidence
+  - No canopy in this scan — the LLM must reason from vertical cylinder + bark color alone
+  - This is the hardest case: minimal cues, no foliage. If it works here, vegetation-rich scans are easy.
+- Prompt tuned for SF Bay Area:
+  - Powell & Market context: cable car turnaround area, brick pedestrian paths
+  - Common street trees: London Plane (Platanus × acerifolia), Brisbane Box (Lophostemon confertus)
+- BAML call budget: single request, <5KB input JSON (feature summaries, not raw points)
 - `just check` passes
 
 ## Implementation Notes
