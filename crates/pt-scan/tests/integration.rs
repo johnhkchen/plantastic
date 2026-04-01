@@ -1,6 +1,6 @@
 //! Integration tests for the pt-scan processing pipeline.
 
-use pt_scan::{ScanConfig, ScanError};
+use pt_scan::{ScanConfig, ScanError, ScanReport};
 use pt_test_utils::timed;
 use std::io::Cursor;
 
@@ -302,4 +302,289 @@ fn test_insufficient_points_error() {
             "expected InsufficientPoints error, got {result:?}"
         );
     });
+}
+
+#[test]
+fn test_scan_report_round_trip() {
+    timed(|| {
+        let ply_data = make_synthetic_ply(500, 100, 30);
+        let config = ScanConfig {
+            voxel_size: 0.5,
+            outlier_k: 10,
+            outlier_threshold: 2.0,
+            ransac_iterations: 500,
+            ransac_threshold: 0.05,
+        };
+
+        let (_cloud, report) = pt_scan::process_scan_timed(Cursor::new(ply_data), &config).unwrap();
+
+        // Serialize to JSON
+        let json = serde_json::to_string_pretty(&report).expect("report should serialize");
+
+        // Deserialize back
+        let deserialized: ScanReport =
+            serde_json::from_str(&json).expect("report should deserialize");
+
+        // Round-trip equality
+        assert_eq!(report, deserialized, "report round-trip failed");
+    });
+}
+
+#[test]
+fn test_scan_report_fields_populated() {
+    timed(|| {
+        // 500 ground + 100 obstacle + 30 outlier = 630 total
+        let ply_data = make_synthetic_ply(500, 100, 30);
+        let config = ScanConfig {
+            voxel_size: 0.5,
+            outlier_k: 10,
+            outlier_threshold: 2.0,
+            ransac_iterations: 500,
+            ransac_threshold: 0.05,
+        };
+
+        let (cloud, report) = pt_scan::process_scan_timed(Cursor::new(ply_data), &config).unwrap();
+
+        // Input: 630 vertices, format = "ply", caller fields unset
+        assert_eq!(report.input.original_vertex_count, 630);
+        assert_eq!(report.input.format, "ply");
+        assert!(report.input.filename.is_none());
+        assert!(report.input.file_size_bytes.is_none());
+
+        // Processing: downsample ratio should be < 1.0 (we used 0.5m voxels on 10m scan)
+        assert!(
+            report.processing.downsample_ratio > 0.0 && report.processing.downsample_ratio <= 1.0,
+            "downsample_ratio={} should be in (0, 1]",
+            report.processing.downsample_ratio,
+        );
+        assert!(report.processing.downsampled_count <= 630);
+        assert_eq!(report.processing.ransac_iterations_config, 500);
+        assert!(report.processing.ransac_best_iteration < 500);
+
+        // Ground: should have some points, area > 0
+        assert!(report.ground.point_count > 0);
+        assert!(
+            report.ground.area_estimate_sqm > 0.0,
+            "ground area should be positive"
+        );
+
+        // Obstacles: should have some, with height range
+        assert!(report.obstacles.count > 0);
+        let [min_h, max_h] = report
+            .obstacles
+            .height_range
+            .expect("should have height range");
+        // Obstacles are at z ∈ [0.3, 1.0], ground at z ≈ 0, so heights should be ~0.3–1.0
+        assert!(min_h >= 0.0, "min obstacle height should be >= 0");
+        assert!(max_h > min_h, "max should exceed min");
+        assert!(report.obstacles.bbox.is_some());
+
+        // Timing: total should be positive
+        assert!(
+            report.timing.total_processing_ms < 30_000,
+            "processing should finish in reasonable time"
+        );
+        assert!(report.timing.terrain_export_ms.is_none());
+
+        // Output: not set (no terrain export run)
+        assert!(report.output.is_none());
+
+        // Report counts should match cloud metadata
+        assert_eq!(report.ground.point_count, cloud.metadata.ground_count);
+        assert_eq!(report.obstacles.count, cloud.metadata.obstacle_count);
+        assert_eq!(
+            report.input.original_vertex_count,
+            cloud.metadata.original_count
+        );
+    });
+}
+
+#[test]
+fn test_terrain_glb_is_y_up() {
+    timed(|| {
+        // Synthetic cloud: ground at z ≈ 0 spread over XY, obstacles at z > 0.3
+        // After Z-up → Y-up transform: [x, y, z] → [x, z, -y]
+        // Ground z ≈ 0 → GLB Y ≈ 0 (flat ground plane)
+        // XY spread → GLB XZ spread (horizontal plane)
+        let ply_data = make_synthetic_ply(500, 100, 30);
+        let config = ScanConfig {
+            voxel_size: 0.5,
+            outlier_k: 10,
+            outlier_threshold: 2.0,
+            ransac_iterations: 500,
+            ransac_threshold: 0.05,
+        };
+
+        let cloud = pt_scan::process_scan(Cursor::new(ply_data), &config).unwrap();
+        let output = pt_scan::generate_terrain(&cloud, &pt_scan::ExportConfig::default()).unwrap();
+        let glb = &output.mesh_glb;
+
+        // Parse JSON chunk to read position accessor min/max
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let json_bytes = &glb[20..20 + json_len];
+        let parsed: serde_json::Value = serde_json::from_slice(json_bytes).unwrap();
+
+        // Position accessor is index 0
+        let pos_accessor = &parsed["accessors"][0];
+        let pos_min: Vec<f64> = pos_accessor["min"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_f64().unwrap())
+            .collect();
+        let pos_max: Vec<f64> = pos_accessor["max"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_f64().unwrap())
+            .collect();
+
+        // In Y-up: Y is vertical, X and Z are horizontal.
+        // Ground was at scan-z ≈ 0, which maps to GLB Y ≈ 0.
+        // The terrain mesh is ground-only, so Y range should be near 0.
+        assert!(
+            pos_max[1].abs() < 0.5,
+            "GLB Y-max={:.3}, expected near 0 for ground plane (Y-up)",
+            pos_max[1],
+        );
+        assert!(
+            pos_min[1].abs() < 0.5,
+            "GLB Y-min={:.3}, expected near 0 for ground plane (Y-up)",
+            pos_min[1],
+        );
+
+        // X should span horizontally (ground was spread over X in [0, 10])
+        assert!(
+            pos_max[0] - pos_min[0] > 1.0,
+            "GLB X range too small: {:.3} to {:.3}",
+            pos_min[0],
+            pos_max[0],
+        );
+
+        // Z should span horizontally (old Y mapped to -Z)
+        assert!(
+            pos_max[2] - pos_min[2] > 1.0,
+            "GLB Z range too small: {:.3} to {:.3}",
+            pos_min[2],
+            pos_max[2],
+        );
+
+        // Node name should be "terrain"
+        assert_eq!(
+            parsed["nodes"][0]["name"].as_str().unwrap(),
+            "terrain",
+            "terrain node should be named 'terrain'"
+        );
+    });
+}
+
+#[test]
+fn test_terrain_glb_has_vertex_colors() {
+    timed(|| {
+        let ply_data = make_synthetic_ply(200, 50, 10);
+        let config = ScanConfig {
+            voxel_size: 0.5,
+            outlier_k: 10,
+            outlier_threshold: 2.0,
+            ransac_iterations: 500,
+            ransac_threshold: 0.05,
+        };
+
+        let cloud = pt_scan::process_scan(Cursor::new(ply_data), &config).unwrap();
+        let output = pt_scan::generate_terrain(&cloud, &pt_scan::ExportConfig::default()).unwrap();
+        let glb = &output.mesh_glb;
+
+        // Parse JSON chunk
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let json_bytes = &glb[20..20 + json_len];
+        let parsed: serde_json::Value = serde_json::from_slice(json_bytes).unwrap();
+
+        // The mesh primitive should have a COLOR_0 attribute
+        let attrs = &parsed["meshes"][0]["primitives"][0]["attributes"];
+        assert!(
+            attrs["COLOR_0"].is_number(),
+            "mesh should have COLOR_0 vertex attribute"
+        );
+
+        // COLOR_0 accessor should be VEC4 UNSIGNED_BYTE normalized
+        #[allow(clippy::cast_possible_truncation)]
+        let color_accessor_idx = attrs["COLOR_0"].as_u64().unwrap() as usize;
+        let color_accessor = &parsed["accessors"][color_accessor_idx];
+        assert_eq!(
+            color_accessor["componentType"].as_u64().unwrap(),
+            5121, // UNSIGNED_BYTE
+            "COLOR_0 should be UNSIGNED_BYTE"
+        );
+        assert_eq!(
+            color_accessor["type"].as_str().unwrap(),
+            "VEC4",
+            "COLOR_0 should be VEC4"
+        );
+        assert!(
+            color_accessor["normalized"].as_bool().unwrap(),
+            "COLOR_0 should be normalized"
+        );
+    });
+}
+
+#[test]
+fn test_powell_market_two_clusters() {
+    use pt_scan::cluster::{cluster_obstacles, ClusterConfig};
+    use std::fs::File;
+    use std::io::BufReader;
+
+    let scan_path = "../../assets/scans/samples/Scan at 09.23.ply";
+    let file = match File::open(scan_path) {
+        Ok(f) => f,
+        Err(_) => {
+            eprintln!("Skipping Powell & Market test: scan file not found at {scan_path}");
+            return;
+        }
+    };
+
+    let config = ScanConfig {
+        voxel_size: 0.05,
+        outlier_k: 20,
+        outlier_threshold: 2.0,
+        ransac_iterations: 1000,
+        ransac_threshold: 0.05,
+    };
+
+    let cloud = pt_scan::process_scan(BufReader::new(file), &config)
+        .expect("Powell & Market scan should process successfully");
+
+    eprintln!(
+        "Powell & Market: {} ground, {} obstacle points",
+        cloud.ground.len(),
+        cloud.obstacles.len()
+    );
+
+    let cluster_config = ClusterConfig {
+        epsilon: 0.3,
+        min_points: 50,
+    };
+    let result = cluster_obstacles(&cloud.obstacles, &cluster_config);
+
+    eprintln!(
+        "Clusters: {}, noise points: {}",
+        result.clusters.len(),
+        result.noise_indices.len()
+    );
+    for c in &result.clusters {
+        eprintln!(
+            "  Cluster {}: {} points, centroid [{:.2}, {:.2}, {:.2}]",
+            c.id,
+            c.point_indices.len(),
+            c.centroid[0],
+            c.centroid[1],
+            c.centroid[2],
+        );
+    }
+
+    assert_eq!(
+        result.clusters.len(),
+        2,
+        "Powell & Market should produce exactly 2 clusters (two tree trunks), got {}",
+        result.clusters.len()
+    );
 }

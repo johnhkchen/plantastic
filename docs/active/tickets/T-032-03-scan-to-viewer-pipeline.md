@@ -5,7 +5,7 @@ title: scan-to-viewer-pipeline
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: [T-032-01]
 ---
 

@@ -660,7 +660,261 @@ async fn s_3_2_api() -> ScenarioOutcome {
 // ── Stubs ────────────────────────────────────────────────────
 
 fn s_3_3_branded_pdf() -> ScenarioOutcome {
-    ScenarioOutcome::NotImplemented
+    if std::env::var("DATABASE_URL").is_err() {
+        return ScenarioOutcome::Blocked(
+            "DATABASE_URL not set — S.3.3 requires API-level test".to_string(),
+        );
+    }
+
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("tokio runtime");
+
+    rt.block_on(s_3_3_api())
+}
+
+async fn s_3_3_api() -> ScenarioOutcome {
+    use crate::api_helpers;
+    use axum::http::{Method, StatusCode};
+    use serde_json::json;
+
+    // ── Setup ────────────────────────────────────────────────
+    let pool = match api_helpers::scenario_pool().await {
+        Ok(p) => p,
+        Err(e) => return ScenarioOutcome::Blocked(e),
+    };
+    if let Err(e) = api_helpers::setup_db(&pool).await {
+        return ScenarioOutcome::Fail(format!("DB setup failed: {e}"));
+    }
+    let tenant_id = match api_helpers::create_tenant(&pool, "S.3.3 PDF Test Co").await {
+        Ok(id) => id,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    let app = api_helpers::router(pool).await;
+
+    // ── Create project with address ─────────────────────────
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        "/projects",
+        tenant_id,
+        Some(json!({"client_name": "S.3.3 Client", "address": "123 Test Street"})),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST /projects: {status}"));
+    }
+    let project_id = body["id"].as_str().unwrap();
+
+    // ── Create 3 zones (same geometry as S.3.1) ─────────────
+    // 12×15 ft patio (area = 180 sq ft)
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        &format!("/projects/{project_id}/zones"),
+        tenant_id,
+        Some(json!({
+            "geometry": geojson_rect(12.0, 15.0),
+            "zone_type": "patio",
+            "label": "Back patio"
+        })),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST zone (patio): {status}"));
+    }
+    let patio_zone_id = body["id"].as_str().unwrap().to_string();
+
+    // 8×20 ft garden bed (area = 160 sq ft)
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        &format!("/projects/{project_id}/zones"),
+        tenant_id,
+        Some(json!({
+            "geometry": geojson_rect(8.0, 20.0),
+            "zone_type": "bed",
+            "label": "Garden bed"
+        })),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST zone (bed): {status}"));
+    }
+    let bed_zone_id = body["id"].as_str().unwrap().to_string();
+
+    // 10×10 edging (perimeter = 40 linear ft)
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        &format!("/projects/{project_id}/zones"),
+        tenant_id,
+        Some(json!({
+            "geometry": geojson_rect(10.0, 10.0),
+            "zone_type": "edging",
+            "label": "Border edging"
+        })),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST zone (edging): {status}"));
+    }
+    let edge_zone_id = body["id"].as_str().unwrap().to_string();
+
+    // ── Create 3 materials ──────────────────────────────────
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        "/materials",
+        tenant_id,
+        Some(json!({
+            "name": "Travertine Pavers",
+            "category": "hardscape",
+            "unit": "sq_ft",
+            "price_per_unit": "8.50",
+            "extrusion": {"type": "sits_on_top", "height_inches": 1.0}
+        })),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST material (pavers): {status}"));
+    }
+    let paver_id = body["id"].as_str().unwrap().to_string();
+
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        "/materials",
+        tenant_id,
+        Some(json!({
+            "name": "Premium Mulch",
+            "category": "softscape",
+            "unit": "cu_yd",
+            "price_per_unit": "45.00",
+            "depth_inches": 4.0,
+            "extrusion": {"type": "fills", "flush": true}
+        })),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST material (mulch): {status}"));
+    }
+    let mulch_id = body["id"].as_str().unwrap().to_string();
+
+    let (status, body) = match api_helpers::api_call(
+        &app,
+        Method::POST,
+        "/materials",
+        tenant_id,
+        Some(json!({
+            "name": "Steel Edge",
+            "category": "edging",
+            "unit": "linear_ft",
+            "price_per_unit": "3.25",
+            "extrusion": {"type": "sits_on_top", "height_inches": 4.0}
+        })),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+    if status != StatusCode::CREATED {
+        return ScenarioOutcome::Fail(format!("POST material (edge): {status}"));
+    }
+    let edge_mat_id = body["id"].as_str().unwrap().to_string();
+
+    // ── Set tier assignments for all 3 tiers (same materials) ─
+    let assignments = json!({
+        "assignments": [
+            {"zone_id": patio_zone_id, "material_id": paver_id},
+            {"zone_id": bed_zone_id, "material_id": mulch_id},
+            {"zone_id": edge_zone_id, "material_id": edge_mat_id},
+        ]
+    });
+
+    for tier_name in &["good", "better", "best"] {
+        let (status, _) = match api_helpers::api_call(
+            &app,
+            Method::PUT,
+            &format!("/projects/{project_id}/tiers/{tier_name}"),
+            tenant_id,
+            Some(assignments.clone()),
+        )
+        .await
+        {
+            Ok(r) => r,
+            Err(e) => return ScenarioOutcome::Fail(e),
+        };
+        if status != StatusCode::NO_CONTENT {
+            return ScenarioOutcome::Fail(format!("PUT tiers/{tier_name}: {status}"));
+        }
+    }
+
+    // ── GET /projects/:id/proposal ──────────────────────────
+    let (status, pdf_bytes) = match api_helpers::api_call_raw(
+        &app,
+        Method::GET,
+        &format!("/projects/{project_id}/proposal"),
+        tenant_id,
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => return ScenarioOutcome::Fail(e),
+    };
+
+    if status != StatusCode::OK {
+        // Try to parse error body for diagnostics.
+        let body_str = String::from_utf8_lossy(&pdf_bytes);
+        return ScenarioOutcome::Fail(format!("GET /proposal: {status} — {body_str}"));
+    }
+
+    // ── Verify PDF magic bytes ──────────────────────────────
+    if pdf_bytes.len() < 5 || &pdf_bytes[..5] != b"%PDF-" {
+        return ScenarioOutcome::Fail(format!(
+            "response does not start with %PDF- (got {} bytes, first 5: {:?})",
+            pdf_bytes.len(),
+            &pdf_bytes[..pdf_bytes.len().min(5)]
+        ));
+    }
+
+    // ── Verify dollar totals appear in PDF content ──────────
+    // Patio: 12 × 15 = 180 sq ft × $8.50 = $1,530.00
+    // The Typst template embeds text as-is, so search raw bytes.
+    let pdf_text = String::from_utf8_lossy(&pdf_bytes);
+    if !pdf_text.contains("1,530.00") {
+        return ScenarioOutcome::Fail(
+            "PDF does not contain expected patio total '$1,530.00'".to_string(),
+        );
+    }
+
+    ScenarioOutcome::Pass(Integration::TwoStar, Polish::OneStar)
 }
 
 fn s_3_4_client_comparison() -> ScenarioOutcome {

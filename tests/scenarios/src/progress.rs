@@ -231,9 +231,18 @@ pub static MILESTONES: &[Milestone] = &[
     },
     Milestone {
         label: "pt-pdf: branded quote PDF generation",
-        delivered_by: None,
+        delivered_by: Some("T-030-02"),
         unlocks: &["S.3.3"],
-        note: "",
+        note: "GET /projects/{id}/proposal route in plantastic-api. Loads project, tenant, \
+               zones, materials, and all 3 tier assignments; computes 3 quotes via pt-quote; \
+               builds ProposalInput with TierInput/ZoneSummary for narrative generation; \
+               calls state.proposal_generator.generate() (MockProposalGenerator in tests); \
+               assembles ProposalDocument with TenantBranding; renders PDF via \
+               pt_proposal::render_proposal() in spawn_blocking; returns raw PDF bytes with \
+               Content-Type: application/pdf and Content-Disposition header. \
+               S.3.3 scenario test verifies full pipeline: create project → zones → materials → \
+               3 tier assignments → GET /proposal → assert %PDF- magic bytes + dollar totals \
+               in rendered content. Uses MockProposalGenerator — zero LLM calls.",
     },
     // ── Crew Handoff ────────────────────────────────────────────
     Milestone {

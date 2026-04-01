@@ -101,6 +101,30 @@ test-verbose:
 scenarios:
     @cargo run -p pt-scenarios 2>/dev/null
 
+# ─── Scan Processing ───────────────────────────────────
+
+# Process a PLY scan through the full pipeline (release mode for realistic timing)
+process-scan path="assets/scans/samples/Scan at 09.23.ply":
+    cargo run -p pt-scan --example process_sample --release -- "{{path}}"
+
+# Process a PLY scan and print instructions to view in the 3D viewer
+scan-to-viewer path="assets/scans/samples/Scan at 09.23.ply":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just process-scan "{{path}}"
+    DIR=$(dirname "{{path}}")
+    STEM=$(basename "{{path}}" .ply)
+    GLB="${DIR}/${STEM}-terrain.glb"
+    echo ""
+    echo "── Viewer Instructions ──────────────────────────────"
+    echo "Terrain GLB: ${GLB}"
+    echo ""
+    echo "1. Serve the output directory:"
+    echo "   python3 -m http.server 8080 -d \"${DIR}\""
+    echo ""
+    echo "2. Load in the Bevy viewer via postMessage:"
+    echo "   { \"type\": \"loadScene\", \"url\": \"http://localhost:8080/${STEM}-terrain.glb\" }"
+
 # ─── Build ──────────────────────────────────────────────────────
 
 # Build the entire workspace

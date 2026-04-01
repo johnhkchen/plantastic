@@ -118,3 +118,36 @@ pub async fn api_call(
 
     Ok((status, json))
 }
+
+/// Send a request and return raw response bytes (for non-JSON responses like PDFs).
+pub async fn api_call_raw(
+    app: &axum::Router,
+    method: Method,
+    uri: &str,
+    tenant_id: Uuid,
+) -> Result<(StatusCode, Vec<u8>), String> {
+    let request = Request::builder()
+        .method(method)
+        .uri(uri)
+        .header("X-Tenant-Id", tenant_id.to_string())
+        .header("Content-Length", "0")
+        .body(Body::empty())
+        .map_err(|e| format!("request build error: {e}"))?;
+
+    let response = app
+        .clone()
+        .oneshot(request)
+        .await
+        .map_err(|e| format!("request failed: {e}"))?;
+
+    let status = response.status();
+    let bytes = response
+        .into_body()
+        .collect()
+        .await
+        .map_err(|e| format!("body collect error: {e}"))?
+        .to_bytes()
+        .to_vec();
+
+    Ok((status, bytes))
+}

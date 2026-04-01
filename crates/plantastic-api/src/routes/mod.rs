@@ -3,6 +3,7 @@
 pub mod health;
 pub mod materials;
 pub mod projects;
+pub mod proposals;
 pub mod quotes;
 pub mod scan;
 pub mod scenes;
@@ -25,6 +26,7 @@ pub fn router(state: AppState) -> Router {
         .merge(materials::routes())
         .merge(tiers::routes())
         .merge(quotes::routes())
+        .merge(proposals::routes())
         .merge(scenes::routes())
         .merge(scan::routes())
         .layer(TraceLayer::new_for_http())

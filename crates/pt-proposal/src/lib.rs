@@ -39,7 +39,7 @@ pub use claude_cli::ClaudeCliGenerator;
 pub use error::ProposalError;
 pub use generator::{BamlProposalGenerator, ProposalInput, ProposalNarrativeGenerator};
 pub use mock::{MockFailingGenerator, MockProposalGenerator};
-pub use render::{render_proposal, ProposalDocument, TenantBranding};
+pub use render::{format_dollars, render_proposal, ProposalDocument, TenantBranding};
 
 /// Convenience alias for BAML errors.
 pub type Error = baml::BamlError;

@@ -140,25 +140,27 @@ fn to_glb(mesh: &TerrainMesh) -> Result<Vec<u8>, ScanError> {
     // Build binary buffer
     let mut bin = Vec::with_capacity(bin_size);
 
-    // Positions
+    // Positions — transform from scan Z-up to glTF Y-up: [x, y, z] → [x, z, -y]
     let (mut pos_min, mut pos_max) = ([f32::INFINITY; 3], [f32::NEG_INFINITY; 3]);
     for p in &mesh.positions {
+        let transformed = [p[0], p[2], -p[1]];
         for i in 0..3 {
-            if p[i] < pos_min[i] {
-                pos_min[i] = p[i];
+            if transformed[i] < pos_min[i] {
+                pos_min[i] = transformed[i];
             }
-            if p[i] > pos_max[i] {
-                pos_max[i] = p[i];
+            if transformed[i] > pos_max[i] {
+                pos_max[i] = transformed[i];
             }
         }
-        for &v in p {
+        for &v in &transformed {
             bin.extend_from_slice(&v.to_le_bytes());
         }
     }
 
-    // Normals
+    // Normals — same Z-up → Y-up transform: [nx, ny, nz] → [nx, nz, -ny]
     for n in &mesh.normals {
-        for &v in n {
+        let transformed = [n[0], n[2], -n[1]];
+        for &v in &transformed {
             bin.extend_from_slice(&v.to_le_bytes());
         }
     }

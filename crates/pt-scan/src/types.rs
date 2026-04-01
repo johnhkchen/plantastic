@@ -10,7 +10,7 @@ pub struct Point {
 }
 
 /// Axis-aligned bounding box.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BoundingBox {
     pub min: [f32; 3],
     pub max: [f32; 3],
@@ -34,10 +34,28 @@ impl BoundingBox {
         }
         Some(Self { min, max })
     }
+
+    /// Compute bounding box from raw position arrays. Returns None if empty.
+    pub fn from_positions(positions: &[[f32; 3]]) -> Option<Self> {
+        let first = positions.first()?;
+        let mut min = *first;
+        let mut max = *first;
+        for p in &positions[1..] {
+            for i in 0..3 {
+                if p[i] < min[i] {
+                    min[i] = p[i];
+                }
+                if p[i] > max[i] {
+                    max[i] = p[i];
+                }
+            }
+        }
+        Some(Self { min, max })
+    }
 }
 
 /// Plane equation: normal · point + d = 0.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Plane {
     /// Unit normal vector [a, b, c].
     pub normal: [f32; 3],
@@ -51,6 +69,8 @@ pub struct GroundClassification {
     pub ground_indices: Vec<usize>,
     pub obstacle_indices: Vec<usize>,
     pub plane: Plane,
+    /// The iteration (0-indexed) that found the best plane.
+    pub best_iteration: usize,
 }
 
 /// Metadata about the processed scan.

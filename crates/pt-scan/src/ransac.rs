@@ -43,8 +43,9 @@ pub fn fit_ground_plane(
 
     let mut best_plane: Option<(Vector3<f32>, f32)> = None; // (normal, d)
     let mut best_inlier_count: usize = 0;
+    let mut best_iteration: usize = 0;
 
-    for _ in 0..iterations {
+    for iter in 0..iterations {
         // Sample 3 random distinct indices
         let indices = sample(&mut rng, n, 3);
         let p0 = &positions[indices.index(0)];
@@ -74,6 +75,7 @@ pub fn fit_ground_plane(
         if inlier_count > best_inlier_count {
             best_inlier_count = inlier_count;
             best_plane = Some((unit_normal, d));
+            best_iteration = iter;
         }
     }
 
@@ -99,6 +101,7 @@ pub fn fit_ground_plane(
             normal: [normal.x, normal.y, normal.z],
             d,
         },
+        best_iteration,
     })
 }
 
@@ -132,8 +135,9 @@ mod tests {
 
         let mut best_plane: Option<(Vector3<f32>, f32)> = None;
         let mut best_inlier_count: usize = 0;
+        let mut best_iteration: usize = 0;
 
-        for _ in 0..iterations {
+        for iter in 0..iterations {
             let indices = sample(&mut rng, n, 3);
             let p0 = &positions[indices.index(0)];
             let p1 = &positions[indices.index(1)];
@@ -158,6 +162,7 @@ mod tests {
             if inlier_count > best_inlier_count {
                 best_inlier_count = inlier_count;
                 best_plane = Some((unit_normal, d));
+                best_iteration = iter;
             }
         }
 
@@ -182,6 +187,7 @@ mod tests {
                 normal: [normal.x, normal.y, normal.z],
                 d,
             },
+            best_iteration,
         })
     }
 

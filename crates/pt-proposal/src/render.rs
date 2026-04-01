@@ -92,7 +92,7 @@ struct TemplateTierNarrative {
 
 // ── Dollar formatting ────────────────────────────────────────────
 
-fn format_dollars(d: Decimal) -> String {
+pub fn format_dollars(d: Decimal) -> String {
     let is_negative = d < Decimal::ZERO;
     let abs = if is_negative { -d } else { d };
     let rounded = abs.round_dp(2);

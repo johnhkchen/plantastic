@@ -5,7 +5,7 @@ title: typst-template
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: [T-029-02]
 ---
 

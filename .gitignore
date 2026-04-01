@@ -33,3 +33,5 @@ target/lambda/
 
 # Large scan files (commit small samples only, >50MB use S3)
 assets/scans/samples/*.ply
+assets/scans/samples/*.glb
+assets/scans/samples/*.png
