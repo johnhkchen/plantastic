@@ -5,7 +5,7 @@ title: proposal-mock-trait
 type: task
 status: open
 priority: high
-phase: ready
+phase: implement
 depends_on: [T-029-01]
 ---
 

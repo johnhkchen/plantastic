@@ -6,6 +6,9 @@
 	import type { AssignmentResponse, AssignmentInput } from '$lib/api/tiers';
 	import { fetchQuote } from '$lib/api/quotes';
 	import type { Quote } from '$lib/api/quotes';
+	import EmptyState from '$lib/components/EmptyState.svelte';
+	import ErrorBanner from '$lib/components/ErrorBanner.svelte';
+	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import ZoneList from '$lib/components/assignment/ZoneList.svelte';
 	import MaterialPicker from '$lib/components/assignment/MaterialPicker.svelte';
 	import TierTabs from '$lib/components/assignment/TierTabs.svelte';
@@ -45,8 +48,7 @@
 		return a?.material_id ?? null;
 	});
 
-	// Load all data on mount / project change
-	$effect(() => {
+	function loadData() {
 		const id = projectId;
 		loading = true;
 		error = null;
@@ -72,6 +74,12 @@
 			.finally(() => {
 				loading = false;
 			});
+	}
+
+	// Load all data on mount / project change
+	$effect(() => {
+		void projectId;
+		loadData();
 	});
 
 	// Fetch quote when tier changes or after initial load
@@ -152,27 +160,41 @@
 <div class="flex h-[calc(100vh-12rem)] flex-col">
 	<!-- Header -->
 	<div class="flex items-center justify-between pb-3">
-		<h2 class="text-lg font-semibold text-gray-900">Material Assignments</h2>
+		<h2 class="text-lg font-semibold text-text">Material Assignments</h2>
 		<div class="flex items-center gap-2">
 			{#if saving}
-				<span class="text-xs text-gray-400">Saving...</span>
-			{:else if error}
-				<span class="text-xs text-red-500">{error}</span>
+				<span class="text-xs text-text-tertiary">Saving...</span>
 			{/if}
 		</div>
 	</div>
 
+	{#if error && !loading}
+		<ErrorBanner message={error} onretry={loadData} />
+	{/if}
+
 	{#if loading}
 		<div class="flex flex-1 items-center justify-center">
-			<span class="text-sm text-gray-400">Loading...</span>
+			<LoadingSkeleton variant="row" />
 		</div>
+	{:else if zones.length === 0}
+		<EmptyState icon="✏️" message="No zones drawn yet" submessage="Draw zones in the editor before assigning materials">
+			<a href="editor" class="text-sm font-medium text-primary hover:text-primary-light underline">
+				Go to Zone Editor
+			</a>
+		</EmptyState>
+	{:else if materials.length === 0}
+		<EmptyState icon="🧱" message="No materials in catalog" submessage="Add materials to your catalog before assigning them to zones">
+			<a href="/catalog" class="text-sm font-medium text-primary hover:text-primary-light underline">
+				Go to Catalog
+			</a>
+		</EmptyState>
 	{:else}
 		<!-- Three-column layout -->
 		<div
-			class="flex min-h-0 flex-1 gap-0 overflow-hidden rounded-lg border border-gray-200 bg-white"
+			class="flex min-h-0 flex-1 gap-0 overflow-hidden rounded-lg border border-border bg-surface"
 		>
 			<!-- Left: Zone List -->
-			<div class="w-52 shrink-0 border-r border-gray-200">
+			<div class="w-52 shrink-0 border-r border-border">
 				<ZoneList {zones} bind:selectedZoneId assignments={activeAssignments} {materials} />
 			</div>
 
@@ -190,7 +212,7 @@
 			</div>
 
 			<!-- Right: Quote Summary -->
-			<div class="w-56 shrink-0 border-l border-gray-200">
+			<div class="w-56 shrink-0 border-l border-border">
 				<QuoteSummary {quote} loading={quoteLoading} />
 			</div>
 		</div>

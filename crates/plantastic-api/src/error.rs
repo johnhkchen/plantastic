@@ -74,6 +74,17 @@ impl From<pt_scan::ScanError> for AppError {
     }
 }
 
+impl From<pt_proposal::ProposalError> for AppError {
+    fn from(e: pt_proposal::ProposalError) -> Self {
+        match e {
+            pt_proposal::ProposalError::InvalidInput(msg) => Self::BadRequest(msg),
+            pt_proposal::ProposalError::Generation(msg) => {
+                Self::Internal(format!("proposal generation failed: {msg}"))
+            }
+        }
+    }
+}
+
 impl From<crate::s3::S3Error> for AppError {
     fn from(e: crate::s3::S3Error) -> Self {
         Self::Internal(format!("{e}"))

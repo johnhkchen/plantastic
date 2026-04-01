@@ -5,7 +5,7 @@ title: polish-enum-dashboard
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: []
 ---
 

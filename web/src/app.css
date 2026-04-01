@@ -1,12 +1,2 @@
 @import 'tailwindcss';
-
-@theme {
-	/* Brand colors — replace with tenant theming */
-	--color-brand-primary: #2d6a4f;
-	--color-brand-secondary: #40916c;
-	--color-brand-accent: #95d5b2;
-
-	/* Typography — replace with brand fonts */
-	--font-display: 'Inter', system-ui, sans-serif;
-	--font-body: 'Inter', system-ui, sans-serif;
-}
+@import './lib/styles/tokens.css';

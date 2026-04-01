@@ -169,15 +169,26 @@ pub static MILESTONES: &[Milestone] = &[
     },
     Milestone {
         label: "pt-project: Project/Zone/Tier model + GeoJSON serde",
-        delivered_by: None,
+        delivered_by: Some("T-002-01, T-003-02"),
         unlocks: &["S.3.1", "S.3.2", "S.3.4", "S.INFRA.1"],
-        note: "",
+        note: "T-002-01 delivered domain types: Project (ProjectId, client_name, status, \
+               tenant_id), Zone (ZoneId, geometry as geo::Polygon, ZoneType enum, label), \
+               Tier (TierLevel::Good/Better/Best, Vec<MaterialAssignment>), \
+               MaterialAssignment (zone_id, material_id, overrides). T-003-02 adds the \
+               repository layer: ProjectRepo, ZoneRepo with GeoJSON serde via \
+               ST_GeomFromGeoJSON/ST_AsGeoJSON for PostGIS round-trip. Full CRUD lifecycle \
+               verified end-to-end by S.INFRA.1.",
     },
     Milestone {
         label: "pt-quote: quantity takeoff engine",
-        delivered_by: None,
+        delivered_by: Some("T-002-02"),
         unlocks: &["S.3.1", "S.3.2"],
-        note: "",
+        note: "T-002-02 delivered pt-quote crate: compute_quote() takes zones, tier \
+               assignments, and material catalog; computes quantity per zone (area_sqft \
+               for SqFt materials, volume_cuyd for CuYd, perimeter_ft for LinearFt via \
+               pt-geo); multiplies by unit price; returns Quote with line items, subtotal, \
+               and total. Verified through API at GET /projects/:id/quote/:tier — \
+               S.INFRA.1 confirms 12×15 patio at $8.50/sqft = $1,530.00 full-stack.",
     },
     Milestone {
         label: "Quote API route: GET /projects/:id/quote/:tier",
@@ -191,6 +202,23 @@ pub static MILESTONES: &[Milestone] = &[
                and empty quotes (no assignments → $0 total). \
                S.3.1/S.3.2 backend prereq is met — API exists for quote computation. \
                Path to TwoStar: update scenario tests to exercise the API path.",
+    },
+    Milestone {
+        label: "pt-proposal: trait abstraction + mock generator",
+        delivered_by: Some("T-029-02"),
+        unlocks: &["S.3.3"],
+        note: "ProposalNarrativeGenerator trait in pt-proposal with async generate() method. \
+               BamlProposalGenerator calls BAML GenerateProposalNarrative for real LLM usage. \
+               MockProposalGenerator returns deterministic, realistic narratives referencing \
+               input zone labels, tier levels, company name, and project address — suitable \
+               for screenshot tests. MockFailingGenerator for error path testing. \
+               ClaudeCliGenerator routes through local `claude` CLI (zero API cost). \
+               ProposalInput bundles function params; ProposalError covers Generation + InvalidInput. \
+               AppState in plantastic-api accepts Arc<dyn ProposalNarrativeGenerator> for DI. \
+               All test helpers (common/mod.rs, api_helpers.rs) use MockProposalGenerator. \
+               6 unit tests verify mock behavior, determinism, error paths, and empty input. \
+               Unblocks proposal narrative route (API handler can call state.proposal_generator) \
+               and proposal PDF generation (S.3.3) once pt-pdf is ready.",
     },
     Milestone {
         label: "pt-pdf: branded quote PDF generation",
@@ -302,14 +330,24 @@ pub static MILESTONES: &[Milestone] = &[
     },
     Milestone {
         label: "SvelteKit frontend + CF Worker proxy",
-        delivered_by: None,
+        delivered_by: Some("T-005-02, T-005-03"),
         unlocks: &["S.INFRA.1", "S.3.4"],
-        note: "",
+        note: "T-005-02 delivered CF Worker proxy (worker/) with CORS handling, rate \
+               limiting, auth passthrough, and SSE streaming to Lambda function URL. \
+               T-005-03 delivered SvelteKit route skeleton (web/) with layout components, \
+               API client wrapper (apiFetch, SSE reader), mock API mode for local dev, \
+               and session/project stores. Pages: dashboard, zone editor, material \
+               catalog, 3D viewer. Path to S.3.4: wire quote comparison view.",
     },
     Milestone {
         label: "pt-tenant: multi-tenant model + auth context",
-        delivered_by: None,
+        delivered_by: Some("T-003-02, T-004-02"),
         unlocks: &["S.INFRA.2"],
-        note: "",
+        note: "T-003-02 delivered TenantRepo in pt-repo (create/get_by_id). T-004-02 \
+               delivered X-Tenant-Id header extractor pulling tenant UUID from every \
+               request. verify_project_tenant() in zones.rs enforces ownership at route \
+               level — returns 404 (not 403) to prevent existence leaking. All routes \
+               use tenant-scoped queries (list_by_tenant) or verify-then-404 pattern. \
+               S.INFRA.2 scenario validates isolation across two tenants end-to-end.",
     },
 ];

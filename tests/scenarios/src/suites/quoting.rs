@@ -1,4 +1,4 @@
-use crate::registry::{Integration, Scenario, ScenarioOutcome, ValueArea};
+use crate::registry::{Integration, Polish, Scenario, ScenarioOutcome, ValueArea};
 
 pub fn scenarios() -> &'static [Scenario] {
     &SCENARIOS
@@ -345,7 +345,9 @@ async fn s_3_1_api() -> ScenarioOutcome {
         ));
     }
 
-    ScenarioOutcome::Pass(Integration::TwoStar)
+    // ThreeStar polish (T-026-02): empty state with CTA when no assignments,
+    // on top of skeleton loading + error banner from T-026-01.
+    ScenarioOutcome::Pass(Integration::TwoStar, Polish::ThreeStar)
 }
 
 // ── S.3.2 — Three-tier quote generation (TwoStar) ───────────
@@ -650,7 +652,9 @@ async fn s_3_2_api() -> ScenarioOutcome {
         ));
     }
 
-    ScenarioOutcome::Pass(Integration::TwoStar)
+    // ThreeStar polish (T-026-02): empty state with CTA when no assignments,
+    // on top of skeleton loading + error banner from T-026-01.
+    ScenarioOutcome::Pass(Integration::TwoStar, Polish::ThreeStar)
 }
 
 // ── Stubs ────────────────────────────────────────────────────
@@ -823,7 +827,9 @@ fn s_3_1_computation() -> ScenarioOutcome {
         ));
     }
 
-    ScenarioOutcome::Pass(Integration::ThreeStar)
+    // ThreeStar polish (T-026-02): empty state with CTA when no assignments,
+    // on top of skeleton loading + error banner from T-026-01.
+    ScenarioOutcome::Pass(Integration::ThreeStar, Polish::ThreeStar)
 }
 
 /// S.3.2 computation-only path (OneStar). Used as fallback when no database
@@ -1051,7 +1057,9 @@ fn s_3_2_computation() -> ScenarioOutcome {
         ));
     }
 
-    ScenarioOutcome::Pass(Integration::ThreeStar)
+    // ThreeStar polish (T-026-02): empty state with CTA when no assignments,
+    // on top of skeleton loading + error banner from T-026-01.
+    ScenarioOutcome::Pass(Integration::ThreeStar, Polish::ThreeStar)
 }
 
 #[cfg(test)]
@@ -1062,7 +1070,7 @@ mod tests {
     fn s_3_1_regression() {
         let outcome = s_3_1_computation();
         assert!(
-            matches!(outcome, ScenarioOutcome::Pass(_)),
+            matches!(outcome, ScenarioOutcome::Pass(..)),
             "S.3.1 unit regression failed: {outcome:?}"
         );
     }
@@ -1071,7 +1079,7 @@ mod tests {
     fn s_3_2_regression() {
         let outcome = s_3_2_computation();
         assert!(
-            matches!(outcome, ScenarioOutcome::Pass(_)),
+            matches!(outcome, ScenarioOutcome::Pass(..)),
             "S.3.2 unit regression failed: {outcome:?}"
         );
     }

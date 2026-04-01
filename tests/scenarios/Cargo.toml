@@ -18,6 +18,7 @@ pt-quote = { path = "../../crates/pt-quote" }
 pt-scan = { path = "../../crates/pt-scan" }
 pt-satellite = { path = "../../crates/pt-satellite" }
 pt-solar = { path = "../../crates/pt-solar" }
+pt-proposal = { path = "../../crates/pt-proposal" }
 pt-repo = { path = "../../crates/pt-repo" }
 plantastic-api = { path = "../../crates/plantastic-api" }
 chrono = { workspace = true }

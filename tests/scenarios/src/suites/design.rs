@@ -1,4 +1,4 @@
-use crate::registry::{Integration, Scenario, ScenarioOutcome, ValueArea};
+use crate::registry::{Integration, Polish, Scenario, ScenarioOutcome, ValueArea};
 
 pub fn scenarios() -> &'static [Scenario] {
     &SCENARIOS
@@ -131,9 +131,10 @@ fn s_2_1_zone_drawing() -> ScenarioOutcome {
     }
 
     // TwoStar: the API route exists (T-004-02) and returns these computed measurements
-    // in area_sqft/perimeter_ft fields (added in T-007-02). No UI for displaying
-    // measurements existed before T-007-02; now the editor page shows them.
-    ScenarioOutcome::Pass(Integration::TwoStar)
+    // in area_sqft/perimeter_ft fields (added in T-007-02). Now the editor page shows them.
+    // ThreeStar polish (T-026-02): empty state with draw hint when no zones exist,
+    // on top of skeleton loading + error banner from T-026-01.
+    ScenarioOutcome::Pass(Integration::TwoStar, Polish::ThreeStar)
 }
 
 /// S.2.2 — Material catalog search and filter
@@ -348,11 +349,12 @@ fn s_2_2_material_catalog() -> ScenarioOutcome {
         ));
     }
 
-    // OneStar: domain model + filtering contract verified in isolation. T-012-02
+    // OneStar integration: domain model + filtering contract verified in isolation. T-012-02
     // delivered CatalogFilter.svelte (search + category tabs) as a reusable component.
     // The frontend uses the exact same filtering logic tested here. Path to TwoStar:
     // test catalog operations through the HTTP API layer (requires Postgres).
-    ScenarioOutcome::Pass(Integration::OneStar)
+    // FiveStar polish: pure computation, no UX surface (Option A from T-023-01).
+    ScenarioOutcome::Pass(Integration::OneStar, Polish::FiveStar)
 }
 
 fn s_2_3_plant_recommendations() -> ScenarioOutcome {
@@ -473,6 +475,7 @@ fn s_2_4_3d_preview() -> ScenarioOutcome {
 
     // TwoStar: embedded in SvelteKit UI with bidirectional postMessage protocol,
     // tier toggle UI, and sunlight slider with time-of-day feedback.
+    // TwoStar polish (T-026-01): loading overlay + error banner for viewer failures.
     // Path to ThreeStar: pt-scene generates real glTF from zones + materials.
-    ScenarioOutcome::Pass(Integration::TwoStar)
+    ScenarioOutcome::Pass(Integration::TwoStar, Polish::TwoStar)
 }

@@ -68,6 +68,7 @@ pub async fn test_router_full(pool: PgPool) -> axum::Router {
         s3_client,
         s3_bucket,
         scan_jobs: Arc::new(ScanJobTracker::new()),
+        proposal_generator: Arc::new(pt_proposal::MockProposalGenerator),
     };
     plantastic_api::router(state)
 }
@@ -83,6 +84,7 @@ pub fn test_router(pool: PgPool) -> axum::Router {
         s3_client,
         s3_bucket: "plantastic-test".to_string(),
         scan_jobs: Arc::new(ScanJobTracker::new()),
+        proposal_generator: Arc::new(pt_proposal::MockProposalGenerator),
     };
     plantastic_api::router(state)
 }

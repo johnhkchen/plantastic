@@ -84,6 +84,7 @@ impl Integration {
     }
 
     /// Weight factor: stars / 5.
+    #[allow(dead_code)]
     pub fn weight(self) -> f64 {
         f64::from(self.stars()) / 5.0
     }
@@ -99,12 +100,57 @@ impl Integration {
     }
 }
 
+/// How polished a passing scenario's UX is.
+///
+/// A scenario can pass with correct computation and even be API-reachable,
+/// but still have rough, unpolished UX. The polish level captures this gap.
+///
+/// Time savings are weighted by both integration and polish:
+///   raw_minutes * (integration.stars() + polish.stars()) / 10 = effective_minutes
+#[derive(Debug, Clone, Copy)]
+#[allow(dead_code, clippy::enum_variant_names)]
+pub enum Polish {
+    /// Bare computation works. No UX consideration.
+    OneStar,
+    /// Basic UI exists, functional but rough.
+    TwoStar,
+    /// Decent UX, handles common paths well.
+    ThreeStar,
+    /// Polished UX, error handling, edge cases covered.
+    FourStar,
+    /// Production-quality UX, delightful, tested on real users.
+    FiveStar,
+}
+
+impl Polish {
+    pub fn stars(self) -> u8 {
+        match self {
+            Polish::OneStar => 1,
+            Polish::TwoStar => 2,
+            Polish::ThreeStar => 3,
+            Polish::FourStar => 4,
+            Polish::FiveStar => 5,
+        }
+    }
+
+    pub fn label(self) -> &'static str {
+        match self {
+            Polish::OneStar => "★☆☆☆☆",
+            Polish::TwoStar => "★★☆☆☆",
+            Polish::ThreeStar => "★★★☆☆",
+            Polish::FourStar => "★★★★☆",
+            Polish::FiveStar => "★★★★★",
+        }
+    }
+}
+
 /// The outcome of running a scenario test.
 #[derive(Debug, Clone)]
 #[allow(dead_code)] // Pass and Blocked used as scenarios get implemented
 pub enum ScenarioOutcome {
     /// Scenario passes. Integration level indicates how reachable it is.
-    Pass(Integration),
+    /// Polish level indicates how refined the UX is.
+    Pass(Integration, Polish),
     /// Scenario test exists but fails.
     Fail(String),
     /// Scenario test body is a stub — capability not yet implemented.
@@ -116,7 +162,7 @@ pub enum ScenarioOutcome {
 impl ScenarioOutcome {
     pub fn symbol(&self) -> &'static str {
         match self {
-            ScenarioOutcome::Pass(_) => "●",
+            ScenarioOutcome::Pass(..) => "●",
             ScenarioOutcome::Fail(_) => "✗",
             ScenarioOutcome::NotImplemented => "○",
             ScenarioOutcome::Blocked(_) => "◌",
@@ -125,7 +171,9 @@ impl ScenarioOutcome {
 
     pub fn status_label(&self) -> String {
         match self {
-            ScenarioOutcome::Pass(level) => format!("PASS {}", level.label()),
+            ScenarioOutcome::Pass(int_level, pol_level) => {
+                format!("PASS {} / {}", int_level.label(), pol_level.label())
+            }
             ScenarioOutcome::Fail(msg) => format!("FAIL: {msg}"),
             ScenarioOutcome::NotImplemented => "NOT IMPLEMENTED".to_string(),
             ScenarioOutcome::Blocked(reason) => format!("BLOCKED: {reason}"),
@@ -133,13 +181,15 @@ impl ScenarioOutcome {
     }
 
     pub fn counts_as_delivered(&self) -> bool {
-        matches!(self, ScenarioOutcome::Pass(_))
+        matches!(self, ScenarioOutcome::Pass(..))
     }
 
-    /// Effective minutes = raw minutes * integration weight.
+    /// Effective minutes = raw minutes * (integration stars + polish stars) / 10.
     pub fn effective_minutes(&self, raw_minutes: f64) -> f64 {
         match self {
-            ScenarioOutcome::Pass(level) => raw_minutes * level.weight(),
+            ScenarioOutcome::Pass(int_level, pol_level) => {
+                raw_minutes * (int_level.stars() + pol_level.stars()) as f64 / 10.0
+            }
             _ => 0.0,
         }
     }

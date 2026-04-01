@@ -5,7 +5,7 @@ title: material-callout-scenario
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: [T-022-01]
 ---
 

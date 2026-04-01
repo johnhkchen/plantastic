@@ -1,5 +1,8 @@
 <script lang="ts">
 	import ZoneEditor from '$lib/components/zone-editor/ZoneEditor.svelte';
+	import EmptyState from '$lib/components/EmptyState.svelte';
+	import ErrorBanner from '$lib/components/ErrorBanner.svelte';
+	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import type { EditorZone } from '$lib/components/zone-editor/types';
 	import type { ApiZone } from '$lib/api/types';
 	import { apiZoneToEditorZone } from '$lib/api/types';
@@ -15,8 +18,7 @@
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 
-	// Load zones on mount / project change
-	$effect(() => {
+	function loadZones() {
 		const id = projectId;
 		loading = true;
 		error = null;
@@ -31,6 +33,12 @@
 			.finally(() => {
 				loading = false;
 			});
+	}
+
+	// Load zones on mount / project change
+	$effect(() => {
+		void projectId;
+		loadZones();
 	});
 
 	// Debounced auto-save when zones change
@@ -80,55 +88,61 @@
 </script>
 
 <div class="flex h-full flex-col">
-	<div class="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-		<h2 class="text-lg font-semibold text-gray-900">Zone Editor</h2>
+	<div class="flex items-center justify-between border-b border-border px-4 py-3">
+		<h2 class="text-lg font-semibold text-text">Zone Editor</h2>
 		<div class="flex items-center gap-2">
 			{#if saving}
-				<span class="text-xs text-gray-400">Saving...</span>
-			{:else if error}
-				<span class="text-xs text-red-500">{error}</span>
+				<span class="text-xs text-text-tertiary">Saving...</span>
 			{:else if !loading && apiZones.length > 0}
-				<span class="text-xs text-green-600">Saved</span>
+				<span class="text-xs text-success">Saved</span>
 			{/if}
 		</div>
 	</div>
 
+	{#if error && !loading}
+		<ErrorBanner message={error} onretry={loadZones} />
+	{/if}
+
 	{#if loading}
 		<div class="flex flex-1 items-center justify-center">
-			<span class="text-sm text-gray-400">Loading zones...</span>
+			<LoadingSkeleton variant="row" rows={4} />
 		</div>
 	{:else}
-		<div class="flex min-h-0 flex-1">
+		<div class="flex min-h-0 flex-1 flex-col md:flex-row">
 			<!-- Canvas -->
-			<div class="min-w-0 flex-1">
+			<div class="min-h-0 min-w-0 flex-1">
 				<ZoneEditor bind:zones />
 			</div>
 
 			<!-- Zone info panel -->
 			{#if zones.length > 0}
-				<div class="w-64 overflow-y-auto border-l border-gray-200 bg-white">
+				<div class="max-h-48 overflow-y-auto border-t border-border bg-surface md:max-h-none md:w-64 md:border-l md:border-t-0">
 					<div class="px-3 py-2">
-						<h3 class="text-xs font-medium uppercase text-gray-500">Zones</h3>
+						<h3 class="text-xs font-medium uppercase text-text-secondary">Zones</h3>
 					</div>
 					{#each zones as zone (zone.id)}
 						{@const m = getMeasurements(zone.id)}
-						<div class="border-t border-gray-100 px-3 py-2">
-							<div class="text-sm font-medium text-gray-800">
+						<div class="border-t border-border-light px-3 py-2">
+							<div class="text-sm font-medium text-text">
 								{zone.label || zone.zoneType}
 							</div>
-							<div class="text-xs text-gray-500 capitalize">{zone.zoneType}</div>
+							<div class="text-xs text-text-secondary capitalize">{zone.zoneType}</div>
 							{#if m}
 								<div class="mt-1 flex gap-3">
-									<span class="text-xs text-gray-600">
+									<span class="text-xs text-text-secondary">
 										<span class="font-medium">{m.area.toFixed(1)}</span> sq ft
 									</span>
-									<span class="text-xs text-gray-600">
+									<span class="text-xs text-text-secondary">
 										<span class="font-medium">{m.perimeter.toFixed(1)}</span> ft
 									</span>
 								</div>
 							{/if}
 						</div>
 					{/each}
+				</div>
+			{:else}
+				<div class="flex items-center justify-center border-t border-border bg-surface p-4 md:w-64 md:border-l md:border-t-0">
+					<EmptyState icon="✏️" message="No zones yet" submessage="Click on the plan view to draw your first zone" />
 				</div>
 			{/if}
 		</div>

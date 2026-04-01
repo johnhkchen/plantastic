@@ -1,9 +1,11 @@
 <script lang="ts">
+	import ErrorBanner from '$lib/components/ErrorBanner.svelte';
 	import Viewer from '$lib/components/viewer/Viewer.svelte';
 
 	let tappedZone = $state<string | null>(null);
 	let activeTier = $state('good');
 	let lightAngle = $state(30);
+	let viewerError = $state<string | null>(null);
 	let viewerRef = $state<ReturnType<typeof Viewer>>();
 
 	// Tier scene URLs — all point to test scene until pt-scene generates real per-tier glTFs
@@ -40,26 +42,31 @@
 </script>
 
 <div class="space-y-4">
-	<h2 class="text-lg font-semibold text-gray-900">3D Viewer</h2>
+	<h2 class="text-lg font-semibold text-text">3D Viewer</h2>
+
+	{#if viewerError}
+		<ErrorBanner message={viewerError} />
+	{/if}
 
 	<Viewer
 		bind:this={viewerRef}
 		sceneUrl={tierUrls[activeTier]}
 		onZoneTapped={(id) => (tappedZone = id)}
+		onError={(msg) => (viewerError = msg)}
 		onLightAngleChanged={(degrees) => (lightAngle = degrees)}
 		onTierChanged={(tier) => (activeTier = tier)}
 	/>
 
 	<!-- Tier Toggle -->
 	<div class="flex items-center gap-2">
-		<span class="text-sm font-medium text-gray-700">Tier:</span>
-		<div class="inline-flex rounded-lg border border-gray-200 bg-white">
+		<span class="text-sm font-medium text-text-secondary">Tier:</span>
+		<div class="inline-flex rounded-lg border border-border bg-surface">
 			{#each tiers as tier (tier)}
 				<button
-					class="px-4 py-2 text-sm font-medium first:rounded-l-lg last:rounded-r-lg {activeTier ===
+					class="min-h-[44px] px-4 py-2 text-sm font-medium first:rounded-l-lg last:rounded-r-lg {activeTier ===
 					tier
-						? 'bg-gray-900 text-white'
-						: 'text-gray-600 hover:bg-gray-50'}"
+						? 'bg-surface-invert text-text-invert'
+						: 'text-text-secondary hover:bg-surface-alt'}"
 					onclick={() => switchTier(tier)}
 				>
 					{tier.charAt(0).toUpperCase() + tier.slice(1)}
@@ -69,23 +76,23 @@
 	</div>
 
 	<!-- Sunlight Slider -->
-	<div class="flex items-center gap-3">
-		<span class="text-sm font-medium text-gray-700">Sunlight:</span>
+	<div class="flex flex-wrap items-center gap-3">
+		<span class="text-sm font-medium text-text-secondary">Sunlight:</span>
 		<input
 			type="range"
 			min="0"
 			max="360"
 			value={lightAngle}
 			oninput={onSliderInput}
-			class="h-2 w-48 cursor-pointer appearance-none rounded-lg bg-gray-200"
+			class="h-2 w-full max-w-48 cursor-pointer appearance-none rounded-lg bg-border"
 		/>
-		<span class="w-20 text-sm tabular-nums text-gray-600">{degreesToTime(lightAngle)}</span>
+		<span class="w-20 text-sm tabular-nums text-text-secondary">{degreesToTime(lightAngle)}</span>
 	</div>
 
 	{#if tappedZone}
-		<div class="rounded-lg border border-gray-200 bg-white p-4">
-			<p class="text-sm text-gray-500">Selected Zone</p>
-			<p class="font-medium text-gray-900">{tappedZone}</p>
+		<div class="rounded-lg border border-border bg-surface p-4">
+			<p class="text-sm text-text-secondary">Selected Zone</p>
+			<p class="font-medium text-text">{tappedZone}</p>
 		</div>
 	{/if}
 </div>

@@ -9,13 +9,13 @@
 	let { activeTier = $bindable('good') }: { activeTier: string } = $props();
 </script>
 
-<div class="flex border-b border-gray-200">
+<div class="flex border-b border-border">
 	{#each TIERS as tier (tier)}
 		<button
 			type="button"
-			class="px-4 py-2 text-sm font-medium transition-colors {activeTier === tier
-				? 'border-b-2 border-brand-primary text-brand-primary'
-				: 'text-gray-500 hover:text-gray-700'}"
+			class="min-h-[44px] flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors {activeTier === tier
+				? 'border-b-2 border-primary text-primary'
+				: 'text-text-secondary hover:text-text'}"
 			onclick={() => (activeTier = tier)}
 		>
 			{TIER_LABELS[tier]}

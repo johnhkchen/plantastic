@@ -24,7 +24,7 @@
 
 <div class="mx-auto max-w-5xl">
 	<div class="mb-4">
-		<h1 class="font-display text-2xl font-bold text-gray-900">{projectName}</h1>
+		<h1 class="font-display text-2xl font-bold text-text">{projectName}</h1>
 	</div>
 
 	<TabNav {projectId} />

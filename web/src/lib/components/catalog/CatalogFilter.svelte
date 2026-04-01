@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Material } from '$lib/stores/project.svelte';
+	import { CATEGORY_COLORS } from '$lib/styles/color-maps';
 
 	const CATEGORIES = ['hardscape', 'softscape', 'edging', 'fill'] as const;
 	const CATEGORY_LABELS: Record<string, string> = {
@@ -7,24 +8,6 @@
 		softscape: 'Softscape',
 		edging: 'Edging',
 		fill: 'Fill'
-	};
-	const CATEGORY_COLORS: Record<string, { active: string; inactive: string }> = {
-		hardscape: {
-			active: 'bg-stone-100 text-stone-800 border-stone-300',
-			inactive: 'text-stone-600 hover:bg-stone-50'
-		},
-		softscape: {
-			active: 'bg-green-100 text-green-800 border-green-300',
-			inactive: 'text-green-600 hover:bg-green-50'
-		},
-		edging: {
-			active: 'bg-amber-100 text-amber-800 border-amber-300',
-			inactive: 'text-amber-600 hover:bg-amber-50'
-		},
-		fill: {
-			active: 'bg-orange-100 text-orange-800 border-orange-300',
-			inactive: 'text-orange-600 hover:bg-orange-50'
-		}
 	};
 
 	let {
@@ -82,7 +65,7 @@
 	<!-- Search input -->
 	<div class="relative">
 		<svg
-			class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+			class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary"
 			fill="none"
 			viewBox="0 0 24 24"
 			stroke="currentColor"
@@ -98,7 +81,7 @@
 			type="text"
 			placeholder="Search materials…"
 			bind:value={searchQuery}
-			class="w-full rounded-md border border-gray-300 py-2 pl-9 pr-3 text-sm shadow-sm placeholder:text-gray-400 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+			class="w-full rounded-md border border-border-strong py-2 pl-9 pr-3 text-sm shadow-sm placeholder:text-text-tertiary focus:border-primary focus:ring-1 focus:ring-primary"
 		/>
 	</div>
 
@@ -108,8 +91,8 @@
 			type="button"
 			class="rounded-full border px-3 py-1 text-xs font-medium transition-colors {activeCategory ===
 			null
-				? 'bg-gray-100 text-gray-800 border-gray-300'
-				: 'border-transparent text-gray-500 hover:bg-gray-50'}"
+				? 'bg-surface-hover text-text border-border-strong'
+				: 'border-transparent text-text-secondary hover:bg-surface-alt'}"
 			onclick={() => (activeCategory = null)}
 		>
 			All ({materials.length})

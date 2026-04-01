@@ -63,6 +63,7 @@ pub async fn router(pool: PgPool) -> axum::Router {
         s3_client,
         s3_bucket,
         scan_jobs: std::sync::Arc::new(plantastic_api::scan_job::ScanJobTracker::new()),
+        proposal_generator: std::sync::Arc::new(pt_proposal::MockProposalGenerator),
     };
     plantastic_api::router(state)
 }

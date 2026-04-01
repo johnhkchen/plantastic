@@ -28,6 +28,8 @@ dotenvy = "0.15"
 aws-sdk-s3 = "1"
 aws-config = "1"
 dashmap = "6"
+async-trait = "0.1"
+baml = "0.218.0"
 
 # Workspace-wide lint configuration.
 # Strict on correctness and safety. Reasonable on style.

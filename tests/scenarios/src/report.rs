@@ -39,14 +39,33 @@ pub fn print_dashboard(results: &[ScenarioResult]) {
     );
     if total_raw > total_effective {
         println!(
-            "  Raw passing:       {:.1} min (before integration weighting)",
+            "  Raw passing:       {:.1} min (before integration + polish weighting)",
             total_raw
+        );
+    }
+    let polish_debt: f64 = results
+        .iter()
+        .filter_map(|r| match &r.outcome {
+            ScenarioOutcome::Pass(_int_level, pol_level) => {
+                let raw = r.scenario.time_savings_minutes;
+                let gap = (5 - pol_level.stars()) as f64;
+                Some(raw * gap / 10.0)
+            }
+            _ => None,
+        })
+        .sum();
+    if polish_debt > 0.0 {
+        println!(
+            "  Polish debt:       {:.1} min recoverable by polish alone",
+            polish_debt
         );
     }
     println!(
         "  Scenarios:         {pass} pass, {fail} fail, {not_impl} not implemented, {blocked} blocked",
     );
     println!("  Milestones:        {ms_done} / {ms_total} delivered");
+    println!("  Formula:           effective = raw × (int★ + pol★) / 10");
+    println!("  Ratings:           integration★ / polish★ (each 1–5, weighted equally)");
     println!();
 
     // Group results by area
@@ -222,7 +241,7 @@ fn count_by_status(results: &[ScenarioResult]) -> (usize, usize, usize, usize) {
     let mut blocked = 0;
     for r in results {
         match &r.outcome {
-            ScenarioOutcome::Pass(_) => pass += 1,
+            ScenarioOutcome::Pass(..) => pass += 1,
             ScenarioOutcome::Fail(_) => fail += 1,
             ScenarioOutcome::NotImplemented => not_impl += 1,
             ScenarioOutcome::Blocked(_) => blocked += 1,

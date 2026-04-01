@@ -2,6 +2,8 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 
+	let { open = false, onClose }: { open?: boolean; onClose?: () => void } = $props();
+
 	const navItems = [
 		{ href: '/dashboard', label: 'Dashboard', icon: 'grid' },
 		{ href: '/catalog', label: 'Catalog', icon: 'leaf' },
@@ -11,21 +13,31 @@
 	function isActive(href: string): boolean {
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 	}
+
+	function handleNavClick() {
+		onClose?.();
+	}
 </script>
 
-<aside class="flex h-full w-56 flex-col border-r border-gray-200 bg-white">
+<aside
+	class="flex h-full w-56 flex-col border-r border-border bg-surface
+		fixed inset-y-0 left-0 z-50 transform transition-transform duration-200
+		md:static md:translate-x-0
+		{open ? 'translate-x-0' : '-translate-x-full'}"
+>
 	<div class="flex h-14 items-center px-4">
-		<a href={resolve('/')} class="font-display text-lg font-bold text-brand-primary">Plantastic</a>
+		<a href={resolve('/')} class="font-display text-lg font-bold text-primary">Plantastic</a>
 	</div>
 
 	<nav class="flex-1 space-y-1 px-2 py-4">
 		{#each navItems as item (item.href)}
 			<a
 				href={resolve(item.href)}
-				class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors
+				onclick={handleNavClick}
+				class="flex min-h-[44px] items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors
 					{isActive(item.href)
-					? 'bg-brand-accent/20 text-brand-primary'
-					: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+					? 'bg-primary-surface/20 text-primary'
+					: 'text-text-secondary hover:bg-surface-hover hover:text-text'}"
 			>
 				{#if item.icon === 'grid'}
 					<svg

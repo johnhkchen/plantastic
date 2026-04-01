@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { apiFetch } from '$lib/api';
+	import EmptyState from '$lib/components/EmptyState.svelte';
+	import ErrorBanner from '$lib/components/ErrorBanner.svelte';
+	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import type { Material } from '$lib/stores/project.svelte';
 	import { onMount } from 'svelte';
 	import CatalogFilter from '$lib/components/catalog/CatalogFilter.svelte';
 	import { formatPrice, formatUnit } from '$lib/utils/format';
+	import { CATEGORY_BADGE_COLORS } from '$lib/styles/color-maps';
 
 	let materials = $state<Material[]>([]);
 	let filteredMaterials = $state<Material[]>([]);
@@ -114,21 +118,14 @@
 			error = e instanceof Error ? e.message : 'Failed to delete material';
 		}
 	}
-
-	const categoryColors: Record<string, string> = {
-		hardscape: 'bg-stone-100 text-stone-700',
-		softscape: 'bg-green-100 text-green-700',
-		edging: 'bg-amber-100 text-amber-700',
-		fill: 'bg-orange-100 text-orange-700'
-	};
 </script>
 
 <div class="mx-auto max-w-4xl">
 	<div class="mb-6 flex items-center justify-between">
-		<h1 class="font-display text-2xl font-bold text-gray-900">Material Catalog</h1>
+		<h1 class="font-display text-2xl font-bold text-text">Material Catalog</h1>
 		<button
 			onclick={openCreateModal}
-			class="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-secondary transition-colors"
+			class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-text-invert shadow-sm hover:bg-primary-light transition-colors"
 		>
 			Add Material
 		</button>
@@ -139,99 +136,57 @@
 	{/if}
 
 	{#if error}
-		<div
-			class="mb-4 rounded-md bg-red-50 border border-red-200 p-4 flex items-center justify-between"
-		>
-			<p class="text-sm text-red-700">{error}</p>
-			<button
-				onclick={loadMaterials}
-				class="text-sm font-medium text-red-700 hover:text-red-800 underline"
-			>
-				Retry
-			</button>
-		</div>
+		<ErrorBanner message={error} onretry={loadMaterials} />
 	{/if}
 
 	{#if loading}
-		<div class="space-y-3">
-			{#each [1, 2, 3] as n (n)}
-				<div class="rounded-lg border border-gray-200 bg-white p-5 animate-pulse">
-					<div class="h-5 bg-gray-200 rounded w-1/4 mb-3"></div>
-					<div class="h-4 bg-gray-100 rounded w-1/3"></div>
-				</div>
-			{/each}
-		</div>
+		<LoadingSkeleton variant="card" />
 	{:else if materials.length === 0 && !error}
-		<div class="rounded-lg border border-gray-200 bg-white p-12 text-center">
-			<p class="text-gray-500">
-				No materials in the catalog. Add your first material to get started.
-			</p>
-		</div>
+		<EmptyState icon="🧱" message="No materials in your catalog" submessage="Add materials before assigning them to zones">
+			<button
+				onclick={openCreateModal}
+				class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-text-invert shadow-sm hover:bg-primary-light transition-colors"
+			>
+				Add Material
+			</button>
+		</EmptyState>
 	{:else if filteredMaterials.length === 0 && materials.length > 0}
-		<div class="rounded-lg border border-gray-200 bg-white p-12 text-center">
-			<p class="text-gray-500">No materials match your search.</p>
+		<div class="rounded-lg border border-border bg-surface p-12 text-center">
+			<p class="text-text-secondary">No materials match your search.</p>
 		</div>
 	{:else}
-		<div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-			<table class="min-w-full divide-y divide-gray-200">
-				<thead class="bg-gray-50">
-					<tr>
-						<th
-							class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-							>Name</th
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+			{#each filteredMaterials as mat (mat.id)}
+				<div class="rounded-lg border border-border bg-surface p-4 flex flex-col gap-3 hover:shadow-sm transition-shadow">
+					<div class="flex items-start justify-between gap-2">
+						<h3 class="text-sm font-medium text-text leading-tight">{mat.name}</h3>
+						<span
+							class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium flex-shrink-0 {CATEGORY_BADGE_COLORS[
+								mat.category
+							] ?? 'bg-surface-hover text-text-secondary'}"
 						>
-						<th
-							class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-							>Category</th
+							{mat.category}
+						</span>
+					</div>
+					<div class="text-sm text-text font-mono">
+						{formatPrice(mat.price_per_unit)}/{formatUnit(mat.unit)}
+					</div>
+					<div class="flex items-center gap-2 mt-auto pt-2 border-t border-border-light">
+						<button
+							onclick={() => openEditModal(mat)}
+							class="min-h-[44px] flex-1 rounded-md border border-border text-sm font-medium text-primary hover:bg-surface-alt transition-colors"
 						>
-						<th
-							class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-							>Unit</th
+							Edit
+						</button>
+						<button
+							onclick={() => deleteMaterial(mat)}
+							class="min-h-[44px] flex-1 rounded-md border border-border text-sm font-medium text-error hover:bg-error-surface transition-colors"
 						>
-						<th
-							class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-							>Price</th
-						>
-						<th
-							class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-						></th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-100">
-					{#each filteredMaterials as mat (mat.id)}
-						<tr class="hover:bg-gray-50 transition-colors">
-							<td class="px-4 py-3 text-sm font-medium text-gray-900">{mat.name}</td>
-							<td class="px-4 py-3">
-								<span
-									class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {categoryColors[
-										mat.category
-									] ?? 'bg-gray-100 text-gray-700'}"
-								>
-									{mat.category}
-								</span>
-							</td>
-							<td class="px-4 py-3 text-sm text-gray-500">{formatUnit(mat.unit)}</td>
-							<td class="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-								{formatPrice(mat.price_per_unit)}/{formatUnit(mat.unit)}
-							</td>
-							<td class="px-4 py-3 text-right">
-								<button
-									onclick={() => openEditModal(mat)}
-									class="text-sm text-brand-primary hover:text-brand-secondary mr-3"
-								>
-									Edit
-								</button>
-								<button
-									onclick={() => deleteMaterial(mat)}
-									class="text-sm text-red-600 hover:text-red-700"
-								>
-									Delete
-								</button>
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
+							Delete
+						</button>
+					</div>
+				</div>
+			{/each}
 		</div>
 	{/if}
 </div>
@@ -239,8 +194,8 @@
 <!-- Create / Edit Material Modal -->
 {#if showModal}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-		<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">
+		<div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl">
+			<h2 class="text-lg font-semibold text-text mb-4">
 				{editingMaterial ? 'Edit Material' : 'Add Material'}
 			</h2>
 			<form
@@ -251,25 +206,25 @@
 			>
 				<div class="space-y-4">
 					<div>
-						<label for="mat_name" class="block text-sm font-medium text-gray-700">Name</label>
+						<label for="mat_name" class="block text-sm font-medium text-text-secondary">Name</label>
 						<input
 							id="mat_name"
 							type="text"
 							required
 							bind:value={formName}
 							placeholder="Flagstone Pavers"
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+							class="mt-1 block w-full rounded-md border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						/>
 					</div>
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label for="mat_category" class="block text-sm font-medium text-gray-700"
+							<label for="mat_category" class="block text-sm font-medium text-text-secondary"
 								>Category</label
 							>
 							<select
 								id="mat_category"
 								bind:value={formCategory}
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+								class="mt-1 block w-full rounded-md border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 							>
 								<option value="hardscape">Hardscape</option>
 								<option value="softscape">Softscape</option>
@@ -278,11 +233,11 @@
 							</select>
 						</div>
 						<div>
-							<label for="mat_unit" class="block text-sm font-medium text-gray-700">Unit</label>
+							<label for="mat_unit" class="block text-sm font-medium text-text-secondary">Unit</label>
 							<select
 								id="mat_unit"
 								bind:value={formUnit}
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+								class="mt-1 block w-full rounded-md border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 							>
 								<option value="sq_ft">sq ft</option>
 								<option value="cu_yd">cu yd</option>
@@ -293,7 +248,7 @@
 					</div>
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label for="mat_price" class="block text-sm font-medium text-gray-700"
+							<label for="mat_price" class="block text-sm font-medium text-text-secondary"
 								>Price per Unit ($)</label
 							>
 							<input
@@ -304,11 +259,11 @@
 								required
 								bind:value={formPrice}
 								placeholder="8.50"
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+								class="mt-1 block w-full rounded-md border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 							/>
 						</div>
 						<div>
-							<label for="mat_depth" class="block text-sm font-medium text-gray-700"
+							<label for="mat_depth" class="block text-sm font-medium text-text-secondary"
 								>Depth (inches)</label
 							>
 							<input
@@ -318,19 +273,19 @@
 								min="0"
 								bind:value={formDepth}
 								placeholder="2.0"
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+								class="mt-1 block w-full rounded-md border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 							/>
 						</div>
 					</div>
 					<div>
-						<label for="mat_sku" class="block text-sm font-medium text-gray-700">Supplier SKU</label
+						<label for="mat_sku" class="block text-sm font-medium text-text-secondary">Supplier SKU</label
 						>
 						<input
 							id="mat_sku"
 							type="text"
 							bind:value={formSku}
 							placeholder="FLG-001"
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+							class="mt-1 block w-full rounded-md border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						/>
 					</div>
 				</div>
@@ -338,14 +293,14 @@
 					<button
 						type="button"
 						onclick={() => (showModal = false)}
-						class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						class="rounded-md border border-border-strong px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-alt"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
 						disabled={saving}
-						class="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-secondary disabled:opacity-50 transition-colors"
+						class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-text-invert shadow-sm hover:bg-primary-light disabled:opacity-50 transition-colors"
 					>
 						{saving ? 'Saving...' : editingMaterial ? 'Save Changes' : 'Add Material'}
 					</button>

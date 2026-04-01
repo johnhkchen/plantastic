@@ -12,8 +12,10 @@
 	import { findZoneAtPoint, isNearFirstVertex, nearestVertex } from './hit-test';
 	import { redraw } from './renderer';
 
-	const VERTEX_HIT_RADIUS = 10;
-	const CLOSE_HIT_RADIUS = 12;
+	const VERTEX_HIT_RADIUS_MOUSE = 10;
+	const VERTEX_HIT_RADIUS_TOUCH = 18;
+	const CLOSE_HIT_RADIUS_MOUSE = 12;
+	const CLOSE_HIT_RADIUS_TOUCH = 20;
 
 	let { zones = $bindable<EditorZone[]>([]) }: { zones: EditorZone[] } = $props();
 
@@ -24,8 +26,11 @@
 	let dragState = $state<DragState | null>(null);
 	let mousePos = $state<Point | null>(null);
 	let canvasEl: HTMLCanvasElement | undefined = $state();
+	let lastPointerType = $state<string>('mouse');
 
 	let selectedZone = $derived(zones.find((z) => z.id === selectedZoneId) ?? null);
+	let vertexHitRadius = $derived(lastPointerType === 'touch' ? VERTEX_HIT_RADIUS_TOUCH : VERTEX_HIT_RADIUS_MOUSE);
+	let closeHitRadius = $derived(lastPointerType === 'touch' ? CLOSE_HIT_RADIUS_TOUCH : CLOSE_HIT_RADIUS_MOUSE);
 
 	// Reactive canvas redraw
 	$effect(() => {
@@ -80,7 +85,7 @@
 		canvasEl.style.height = `${rect.height}px`;
 	}
 
-	function getCanvasPoint(e: MouseEvent): Point {
+	function getCanvasPoint(e: PointerEvent | MouseEvent): Point {
 		if (!canvasEl) return { x: 0, y: 0 };
 		const rect = canvasEl.getBoundingClientRect();
 		return {
@@ -146,7 +151,7 @@
 
 		if (mode === 'drawing') {
 			// Close polygon if clicking near first vertex
-			if (isNearFirstVertex(pt, drawingVertices, CLOSE_HIT_RADIUS)) {
+			if (isNearFirstVertex(pt, drawingVertices, closeHitRadius)) {
 				finishDrawing();
 				return;
 			}
@@ -186,7 +191,7 @@
 		finishDrawing();
 	}
 
-	function handleMouseMove(e: MouseEvent): void {
+	function handlePointerMove(e: PointerEvent): void {
 		const pt = getCanvasPoint(e);
 		mousePos = pt;
 
@@ -200,23 +205,27 @@
 		}
 	}
 
-	function handleMouseDown(e: MouseEvent): void {
+	function handlePointerDown(e: PointerEvent): void {
+		lastPointerType = e.pointerType;
+
 		if (mode !== 'selected' || !selectedZoneId) return;
 
 		const pt = getCanvasPoint(e);
 		const sel = zones.find((z) => z.id === selectedZoneId);
 		if (!sel) return;
 
-		// Check if mousedown is on a vertex handle
+		// Check if pointer is on a vertex handle
 		const nearest = nearestVertex(pt, sel.vertices);
-		if (nearest.distance <= VERTEX_HIT_RADIUS) {
+		if (nearest.distance <= vertexHitRadius) {
 			dragState = { zoneId: selectedZoneId, vertexIndex: nearest.index };
+			canvasEl?.setPointerCapture(e.pointerId);
 			e.preventDefault();
 		}
 	}
 
-	function handleMouseUp(): void {
+	function handlePointerUp(e: PointerEvent): void {
 		if (dragState) {
+			canvasEl?.releasePointerCapture(e.pointerId);
 			// Small delay so the click handler can see dragState was active
 			const ds = dragState;
 			dragState = null;
@@ -261,9 +270,9 @@
 
 <div class="flex h-full flex-col">
 	<!-- Toolbar -->
-	<div class="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-2">
+	<div class="flex items-center gap-3 border-b border-border bg-surface px-4 py-2">
 		<!-- Zone type selector -->
-		<span class="text-xs font-medium text-gray-500 uppercase">Zone type:</span>
+		<span class="text-xs font-medium text-text-secondary uppercase">Zone type:</span>
 		<div class="flex gap-1">
 			{#each ZONE_TYPES as zt (zt)}
 				{@const colors = getZoneColors(zt)}
@@ -273,7 +282,7 @@
 						: activeZoneType === zt}
 				<button
 					type="button"
-					class="rounded px-2.5 py-1 text-xs font-medium transition-colors"
+					class="min-h-[44px] rounded px-2.5 py-1 text-xs font-medium transition-colors"
 					style:background-color={isActive ? colors.stroke : 'transparent'}
 					style:color={isActive ? 'white' : colors.stroke}
 					style:border={`1.5px solid ${colors.stroke}`}
@@ -291,15 +300,15 @@
 		</div>
 
 		<!-- Separator -->
-		<div class="mx-1 h-6 w-px bg-gray-200"></div>
+		<div class="mx-1 h-6 w-px bg-border"></div>
 
 		<!-- Label input (when zone selected) -->
 		{#if mode === 'selected' && selectedZone}
 			<label class="flex items-center gap-1.5">
-				<span class="text-xs font-medium text-gray-500">Label:</span>
+				<span class="text-xs font-medium text-text-secondary">Label:</span>
 				<input
 					type="text"
-					class="rounded border border-gray-300 px-2 py-1 text-xs focus:border-brand-primary focus:outline-none"
+					class="rounded border border-border-strong px-2 py-1 text-xs focus:border-primary focus:outline-none"
 					placeholder="Optional label"
 					value={selectedZone.label}
 					oninput={(e) => updateSelectedLabel((e.target as HTMLInputElement).value)}
@@ -308,7 +317,7 @@
 
 			<button
 				type="button"
-				class="ml-auto rounded bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
+				class="ml-auto rounded bg-error-surface px-2.5 py-1 text-xs font-medium text-error transition-colors hover:bg-error-surface"
 				onclick={deleteSelectedZone}
 			>
 				Delete zone
@@ -317,16 +326,16 @@
 	</div>
 
 	<!-- Canvas container -->
-	<div class="relative min-h-0 flex-1 bg-gray-50">
+	<div class="relative min-h-0 flex-1 bg-surface-alt">
 		<canvas
 			bind:this={canvasEl}
 			onclick={handleClick}
 			ondblclick={handleDblClick}
-			onmousemove={handleMouseMove}
-			onmousedown={handleMouseDown}
-			onmouseup={handleMouseUp}
+			onpointermove={handlePointerMove}
+			onpointerdown={handlePointerDown}
+			onpointerup={handlePointerUp}
 			oncontextmenu={(e) => e.preventDefault()}
-			class="absolute inset-0 cursor-crosshair"
+			class="absolute inset-0 cursor-crosshair touch-none"
 			style:cursor={mode === 'selected' && dragState
 				? 'grabbing'
 				: mode === 'selected'
@@ -336,8 +345,8 @@
 	</div>
 
 	<!-- Status bar -->
-	<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-1.5">
-		<span class="text-xs text-gray-500">{statusText}</span>
-		<span class="text-xs text-gray-400">{zones.length} zone{zones.length !== 1 ? 's' : ''}</span>
+	<div class="flex items-center justify-between border-t border-border bg-surface px-4 py-1.5">
+		<span class="text-xs text-text-secondary">{statusText}</span>
+		<span class="text-xs text-text-tertiary">{zones.length} zone{zones.length !== 1 ? 's' : ''}</span>
 	</div>
 </div>

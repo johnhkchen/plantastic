@@ -1,4 +1,4 @@
-use crate::registry::{Integration, Scenario, ScenarioOutcome, ValueArea};
+use crate::registry::{Integration, Polish, Scenario, ScenarioOutcome, ValueArea};
 
 pub fn scenarios() -> &'static [Scenario] {
     &SCENARIOS
@@ -194,9 +194,10 @@ fn s_1_1_scan_processing() -> ScenarioOutcome {
         return ScenarioOutcome::Fail("no vertices in decimated mesh".to_string());
     }
 
-    // OneStar: full scan-to-artifact pipeline works as pure computation.
+    // OneStar integration: full scan-to-artifact pipeline works as pure computation.
     // No API or UI integration yet — needs T-016-01 (upload API) for TwoStar.
-    ScenarioOutcome::Pass(Integration::OneStar)
+    // FiveStar polish: pure computation, no UX surface (Option A from T-023-01).
+    ScenarioOutcome::Pass(Integration::OneStar, Polish::FiveStar)
 }
 
 /// S.1.2 — Satellite pre-population
@@ -332,7 +333,7 @@ fn s_1_2_satellite_prepopulation() -> ScenarioOutcome {
         ));
     }
 
-    ScenarioOutcome::Pass(Integration::TwoStar)
+    ScenarioOutcome::Pass(Integration::TwoStar, Polish::OneStar)
 }
 
 /// S.1.3 — Sun exposure analysis
@@ -423,7 +424,8 @@ fn s_1_3_sun_exposure_analysis() -> ScenarioOutcome {
         ));
     }
 
-    ScenarioOutcome::Pass(Integration::OneStar)
+    // FiveStar polish: pure computation, no UX surface (Option A from T-023-01).
+    ScenarioOutcome::Pass(Integration::OneStar, Polish::FiveStar)
 }
 
 fn s_1_4_plant_identification() -> ScenarioOutcome {

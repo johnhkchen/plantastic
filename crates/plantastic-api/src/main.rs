@@ -43,6 +43,7 @@ async fn main() {
         s3_client,
         s3_bucket,
         scan_jobs: Arc::new(ScanJobTracker::new()),
+        proposal_generator: Arc::new(pt_proposal::BamlProposalGenerator),
     };
     let router = plantastic_api::router(state);
 

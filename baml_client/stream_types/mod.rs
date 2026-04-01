@@ -8,17 +8,16 @@
 //! Full implementation coming in Phase 6.
 
 mod classes;
-mod unions;
 mod type_aliases;
+mod unions;
 
 pub use classes::*;
-pub use unions::*;
 pub use type_aliases::*;
+pub use unions::*;
 
 /// Streaming variants of types (all fields Optional).
 #[derive(Debug, Clone)]
 pub enum StreamTypes {
-
     ProposalContent(ProposalContent),
 
     TierInput(TierInput),
@@ -28,8 +27,6 @@ pub enum StreamTypes {
     ZoneCallout(ZoneCallout),
 
     ZoneSummary(ZoneSummary),
-
-
 }
 
 impl baml::KnownTypes for StreamTypes {
@@ -39,7 +36,6 @@ impl baml::KnownTypes for StreamTypes {
 
     fn type_name(&self) -> &'static str {
         match self {
-
             StreamTypes::ProposalContent(_) => "ProposalContent",
 
             StreamTypes::TierInput(_) => "TierInput",
@@ -49,9 +45,6 @@ impl baml::KnownTypes for StreamTypes {
             StreamTypes::ZoneCallout(_) => "ZoneCallout",
 
             StreamTypes::ZoneSummary(_) => "ZoneSummary",
-
-
-
         }
     }
 }
