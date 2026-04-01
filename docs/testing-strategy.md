@@ -59,32 +59,55 @@ Replaces: redrawing the design for the crew, printing material lists, verbal wal
 
 -----
 
-## Integration Rating
+## Quality Dimensions
 
-A passing scenario test proves the computation is correct. The integration rating captures how reachable that capability is by a real user. Time savings are weighted by integration level.
+A passing scenario has two quality dimensions: **integration** (how reachable is this capability?) and **polish** (how usable is it once reached?). Both contribute to the effective savings number.
 
-**Effective minutes = raw minutes × (stars / 5)**
+**Effective minutes = raw minutes × (integration stars + polish stars) / 10**
 
-A 25-minute capability at ★☆☆☆☆ contributes 5 effective minutes. The same capability at ★★★★★ contributes the full 25. This means integration work — wiring an engine to an API, building a UI, polishing for production — directly increases the effective savings number without any new computation work.
+A 25-minute capability at ★★★☆☆ integration + ★☆☆☆☆ polish = 25 × 4/10 = 10.0 effective minutes. The same capability at ★★★ + ★★★ = 25 × 6/10 = 15.0. Maximum: both at ★★★★★ = full 25 minutes.
+
+### Integration Rating
+
+How reachable the capability is by a real user. Measures the stack layers wired up.
 
 | Rating | Meaning | Example |
 |--------|---------|---------|
 | ★☆☆☆☆ | Pure computation works in isolation. No API, no UI, no persistence. "The engine runs but no user can reach it." | pt-quote computes correct line items from in-memory structs |
 | ★★☆☆☆ | Reachable via API but no UI. Could test with curl. "A developer can use it, a landscaper can't." | GET /projects/:id/quote/good returns correct JSON |
 | ★★★☆☆ | API + basic UI exists. Functional but rough. "A landscaper could use it with hand-holding." | Dashboard shows quotes, but no material assignment UI yet |
-| ★★★★☆ | Polished UI, persisted, handles errors. Missing some edge cases. "A landscaper could use it in a demo." | Full quote flow works: draw zones → assign materials → see 3-tier comparison |
-| ★★★★★ | Production-ready. Branded, reliable, handles edge cases, tested on real data. "A landscaper uses it daily to win contracts." | Branded PDF exports, client-facing view, works on mobile |
+| ★★★★☆ | Full UI flow, persisted, deployed. Missing edge cases. "A landscaper could use it in a demo." | Full quote flow works: draw zones → assign materials → see 3-tier comparison |
+| ★★★★★ | Production-ready. Deployed, monitored, tested on real data. "A landscaper uses it daily." | Live on Lambda, CF Pages, verified with real project data |
+
+### Polish Rating
+
+How refined the UX is once a user reaches the capability. Measures product quality.
+
+| Rating | Meaning | Example |
+|--------|---------|---------|
+| ★☆☆☆☆ | Bare minimum. No loading states, no error messages, default styling. "It works if you know exactly what to do." | Raw HTML form, no feedback on submit, page blank while loading |
+| ★★☆☆☆ | Basic UX. Loading indicators, error messages, empty states with prompts. "A user won't get stuck." | Spinner on load, "No materials yet" empty state, form validation |
+| ★★★☆☆ | Designed. Consistent styling, responsive layout, keyboard navigation. "Looks like a real app." | Design tokens, mobile-friendly, tab order, consistent spacing |
+| ★★★★☆ | Demo-ready. Animations, tenant branding, mobile-optimized, accessibility (WCAG AA). "Would impress in a sales demo." | Smooth transitions, tenant logo/colors, touch targets, aria labels |
+| ★★★★★ | Production-grade. Performance-optimized, error recovery, offline handling, tested on real devices. "A landscaper uses it daily." | Optimistic UI, retry on failure, works on iPad in the field |
+
+**Note:** For pure computation scenarios (★☆☆☆☆ integration), polish is rated against the computation API surface (error messages, input validation, documentation). For API+ scenarios, polish is rated against the user-facing interface.
 
 ### How integration level advances
 
-Each star corresponds to a layer of the stack being wired up:
-
 1. **★ → ★★**: Wire the computation to an API route. The capability becomes reachable over HTTP.
 2. **★★ → ★★★**: Build a basic UI that calls the API. The capability becomes usable by a non-developer.
-3. **★★★ → ★★★★**: Polish the UI, add error handling, persist state, handle edge cases. The capability becomes demo-ready.
-4. **★★★★ → ★★★★★**: Brand it (tenant logo/colors), test on real data, verify on target devices (iPad for crew), harden for production load.
+3. **★★★ → ★★★★**: Full flow deployed end-to-end with persistence and state management.
+4. **★★★★ → ★★★★★**: Monitored in production, tested on real data, verified on target devices.
 
-Agents set the integration level when they return `ScenarioOutcome::Pass(Integration::TwoStar)` (or whichever level). The level should be honest — don't claim ★★★ if there's no UI, don't claim ★★ if the API route doesn't exist yet.
+### How polish level advances
+
+1. **★ → ★★**: Add loading states, error handling, empty states. Users don't get stuck.
+2. **★★ → ★★★**: Apply design tokens, responsive layout, keyboard navigation. Looks professional.
+3. **★★★ → ★★★★**: Add animations, tenant branding, mobile optimization, accessibility.
+4. **★★★★ → ★★★★★**: Performance tuning, error recovery, offline support, real-device testing.
+
+Agents set both levels when they return `ScenarioOutcome::Pass(Integration::TwoStar, Polish::OneStar)`. Both levels should be honest.
 
 -----
 
@@ -145,7 +168,7 @@ Each scenario test:
 3. Computes expected outputs independently from the system under test
 4. Crosses crate boundaries
 5. Asserts on customer-visible outcomes, not internal state
-6. Returns `ScenarioOutcome::Pass(Integration::XStar)` with an honest integration level
+6. Returns `ScenarioOutcome::Pass(Integration::XStar, Polish::XStar)` with honest levels
 
 ### Layer 4: Smoke Tests (deployment verification)
 
@@ -167,7 +190,7 @@ When writing design.md for a ticket, identify which scenario tests the ticket's 
 1. Write unit and integration tests as normal.
 2. Before marking a ticket done, run `just scenarios` and compare against baseline.
 3. If a scenario test regresses, the ticket is not done.
-4. If your work advances a scenario's integration level, update the `Integration::XStar` in the scenario's return value.
+4. If your work advances a scenario's integration or polish level, update the return value accordingly.
 5. If your work delivers a milestone, claim it in `progress.rs`.
 
 ### During Review Phase
@@ -183,8 +206,8 @@ The review.md artifact must include:
 1. **No mocking across crate boundaries in scenario tests.**
 2. **Expected values are computed in the test, not extracted from the system.**
 3. **Scenario tests are append-only.** Once a scenario passes, it must keep passing.
-4. **Integration levels are honest.** Don't claim ★★ if there's no API route. Don't claim ★★★ if there's no UI.
-5. **Star ratings only go up.** A scenario dropping from ★★★ to ★★ is a regression.
+4. **Ratings are honest.** Don't claim ★★ integration if there's no API route. Don't claim ★★ polish if there are no loading states.
+5. **Star ratings only go up.** A scenario dropping in either dimension is a regression.
 6. **The Value Map is updated by humans** during Review phase with human sign-off.
 
 -----
@@ -202,10 +225,10 @@ just check           # full quality gate (format + lint + test + scenarios)
 
 The dashboard shows three key numbers:
 
-1. **Effective savings** — raw time savings weighted by integration level. This is the honest number.
-2. **Raw passing** — unweighted time savings for all passing scenarios. The gap between this and effective savings is the integration debt.
+1. **Effective savings** — raw time savings weighted by integration and polish levels. This is the honest number.
+2. **Raw passing** — unweighted time savings for all passing scenarios. The gap between this and effective savings is the integration + polish debt.
 3. **Milestones** — foundational engineering progress. Shows what's been built and what's next.
 
-Example reading: "Effective savings: 8.0 / 240.0 min (3.3%). Raw passing: 40.0 min. Two quoting scenarios pass at ★☆☆☆☆ — the engine works but it's not reachable by users. 0/18 milestones claimed. Next priority: wire quote engine to API (★→★★) and build basic quote UI (★★→★★★)."
+Example reading: "Effective savings: 44.5 / 240.0 min (18.5%). Raw passing: 155.0 min. Quoting at ★★★ integration / ★☆ polish — the UI exists but it's rough. Next priority: add loading states and error handling (★☆→★★ polish) to recover 13.5 effective minutes."
 
-The gap between raw and effective is a concrete measure of integration debt. Closing that gap — by building API routes, UI pages, and deployment infrastructure — is how raw capability becomes real user value.
+The gap between raw and effective is a concrete measure of integration + polish debt. Closing that gap — by building API routes, UI pages, and polishing the UX — is how raw capability becomes real user value. Both dimensions matter: a beautifully polished library function (high polish, low integration) is as unrealized as a reachable but unusable UI (high integration, low polish).
