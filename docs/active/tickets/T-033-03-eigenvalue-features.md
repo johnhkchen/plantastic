@@ -5,7 +5,7 @@ title: eigenvalue-features
 type: task
 status: open
 priority: high
-phase: ready
+phase: implement
 depends_on: [T-033-01]
 ---
 
@@ -29,8 +29,9 @@ These are computed per-point from K nearest neighbors. For 122K points with K=20
 - Add `features` module to pt-scan (or extend existing)
 - `compute_point_features(points: &[Point3], k: usize) -> Vec<PointFeatures>`
 - PointFeatures struct: planarity, linearity, sphericity, omnivariance, normal ([f32; 3]), curvature
-- Uses kiddo KD-tree (already a dep) for K-NN queries
-- Uses nalgebra (already a dep) for 3×3 eigendecomposition
+- Uses kiddo 5 `ImmutableKdTree::nearest_n` (already a dep) for K-NN queries
+- Uses nalgebra 0.34 `SymmetricEigen::new` (already a dep) for 3×3 eigendecomposition
+- Uses rayon (added to workspace) for parallel per-point computation
 - Performance: < 2s for 122K points (K=20) on M-series Mac
 - Unit tests:
   - Flat grid → planarity ≈ 1.0, sphericity ≈ 0.0

@@ -104,6 +104,33 @@ impl TypeBuilder {
         )
     }
 
+    /// Access the `SiteAnalysis` class builder.
+    pub fn SiteAnalysis(&self) -> SiteAnalysisClassBuilder {
+        SiteAnalysisClassBuilder::new(
+            self.inner
+                .get_class("SiteAnalysis")
+                .expect("class SiteAnalysis is defined in schema"),
+        )
+    }
+
+    /// Access the `SiteObservation` class builder.
+    pub fn SiteObservation(&self) -> SiteObservationClassBuilder {
+        SiteObservationClassBuilder::new(
+            self.inner
+                .get_class("SiteObservation")
+                .expect("class SiteObservation is defined in schema"),
+        )
+    }
+
+    /// Access the `SuggestedZone` class builder.
+    pub fn SuggestedZone(&self) -> SuggestedZoneClassBuilder {
+        SuggestedZoneClassBuilder::new(
+            self.inner
+                .get_class("SuggestedZone")
+                .expect("class SuggestedZone is defined in schema"),
+        )
+    }
+
     /// Access the `TierInput` class builder.
     pub fn TierInput(&self) -> TierInputClassBuilder {
         TierInputClassBuilder::new(

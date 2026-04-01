@@ -108,6 +108,8 @@ macro_rules! baml_function_async {
 // Generate function structs
 // =============================================================================
 
+baml_function_async!(AnalyzePlanView(plan_view: &types::Image, lot_dimensions: impl AsRef<str> + BamlEncode, address: impl AsRef<str> + BamlEncode, classified_features: &[types::ClassifiedFeature], ) -> (stream_types::SiteAnalysis, types::SiteAnalysis));
+
 baml_function_async!(ClassifyFeatures(candidates: &[types::FeatureCandidateInput], address: impl AsRef<str> + BamlEncode, climate_zone: impl AsRef<str> + BamlEncode, ) -> (Vec<stream_types::ClassifiedFeature>, Vec<types::ClassifiedFeature>));
 
 baml_function_async!(EstimatePlanter(gap_width_ft: f64, gap_length_ft: f64, area_sqft: f64, adjacent_features: &[String], sun_hours: Option<i64>, climate_zone: impl AsRef<str> + BamlEncode, address: impl AsRef<str> + BamlEncode, ) -> (stream_types::PlanterEstimate, types::PlanterEstimate));
@@ -122,6 +124,8 @@ baml_function_async!(GenerateProposalNarrative(company_name: impl AsRef<str> + B
 pub struct BamlAsyncClient {
     options: FunctionOptions,
 
+    pub AnalyzePlanView: AnalyzePlanView,
+
     pub ClassifyFeatures: ClassifyFeatures,
 
     pub EstimatePlanter: EstimatePlanter,
@@ -133,6 +137,8 @@ impl BamlAsyncClient {
     pub const fn new() -> Self {
         Self {
             options: FunctionOptions::new(),
+
+            AnalyzePlanView: AnalyzePlanView::new(),
 
             ClassifyFeatures: ClassifyFeatures::new(),
 
@@ -146,6 +152,10 @@ impl BamlAsyncClient {
     pub fn with_options(&self, options: FunctionOptions) -> Self {
         Self {
             options: options.clone(),
+
+            AnalyzePlanView: AnalyzePlanView {
+                options: options.clone(),
+            },
 
             ClassifyFeatures: ClassifyFeatures {
                 options: options.clone(),

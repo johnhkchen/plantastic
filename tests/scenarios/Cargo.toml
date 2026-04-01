@@ -20,6 +20,7 @@ pt-scene = { path = "../../crates/pt-scene" }
 pt-satellite = { path = "../../crates/pt-satellite" }
 pt-solar = { path = "../../crates/pt-solar" }
 pt-planter = { path = "../../crates/pt-planter" }
+pt-analyzer = { path = "../../crates/pt-analyzer" }
 pt-proposal = { path = "../../crates/pt-proposal" }
 pt-repo = { path = "../../crates/pt-repo" }
 plantastic-api = { path = "../../crates/plantastic-api" }

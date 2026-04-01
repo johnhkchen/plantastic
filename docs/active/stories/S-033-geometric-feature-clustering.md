@@ -5,7 +5,7 @@ title: Geometric Feature Clustering
 status: open
 priority: high
 depends_on: [S-032]
-tickets: [T-033-01, T-033-02, T-033-03, T-033-04]
+tickets: [T-033-01, T-033-02, T-033-03, T-033-04, T-033-05]
 ---
 
 ## Goal

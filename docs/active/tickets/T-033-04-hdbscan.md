@@ -27,9 +27,10 @@ No training, no GPU. O(n log n) with a KD-tree for core distances + MST.
 ## Acceptance Criteria
 
 - Replace or augment DBSCAN with HDBSCAN in pt-scan clustering
-- `hdbscan_cluster(points: &[Point3], config: &HdbscanConfig) -> ClusterResult`
+- Use `hdbscan` crate 0.12 (added to workspace, pure Rust, no ndarray)
+- `hdbscan_cluster(points: &[Point3], features: &[PointFeatures], config: &HdbscanConfig) -> ClusterResult`
 - HdbscanConfig: min_cluster_size (default 100-500), min_samples (default 10)
-- Uses kiddo KD-tree for core distance computation
+- The `hdbscan` crate takes `Vec<Vec<f64>>` — build feature vectors from points + eigenvalue features
 - Cluster in augmented feature space: [x, y, z, planarity, linearity, sphericity] (normalized)
   - Spatial coordinates weighted by a configurable factor vs feature coordinates
 - Powell & Market validation: should produce 2-4 clusters (brick path(s), tree trunk(s), possibly one structure)

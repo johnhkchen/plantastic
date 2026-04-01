@@ -11,9 +11,11 @@ delaunator = "1"
 image = { version = "0.25", default-features = false, features = ["png"] }
 imageproc = "0.25"
 indexmap = "2"
+hdbscan.workspace = true
 kiddo = "5"
 meshopt = "0.4"
 nalgebra = "0.34"
+rayon.workspace = true
 ply-rs-bw = "3"
 rand = "0.10"
 serde.workspace = true

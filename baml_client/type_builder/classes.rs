@@ -388,6 +388,154 @@ impl ProposalContentClassBuilder {
     }
 }
 
+/// Wrapper for the `SiteAnalysis` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct SiteAnalysisClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl SiteAnalysisClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner
+            .as_type()
+            .expect("SiteAnalysis is statically defined in .baml and should always have a type")
+    }
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+    /// Access the `features` field builder.
+    pub fn property_features(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("features").expect(
+            "SiteAnalysis.features is statically defined in .baml and should always be present",
+        )
+    }
+
+    /// Access the `suggested_zones` field builder.
+    pub fn property_suggested_zones(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("suggested_zones")
+            .expect("SiteAnalysis.suggested_zones is statically defined in .baml and should always be present")
+    }
+
+    /// Access the `site_observations` field builder.
+    pub fn property_site_observations(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("site_observations")
+            .expect("SiteAnalysis.site_observations is statically defined in .baml and should always be present")
+    }
+}
+
+/// Wrapper for the `SiteObservation` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct SiteObservationClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl SiteObservationClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner
+            .as_type()
+            .expect("SiteObservation is statically defined in .baml and should always have a type")
+    }
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+    /// Access the `observation` field builder.
+    pub fn property_observation(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("observation")
+            .expect("SiteObservation.observation is statically defined in .baml and should always be present")
+    }
+}
+
+/// Wrapper for the `SuggestedZone` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct SuggestedZoneClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl SuggestedZoneClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner
+            .as_type()
+            .expect("SuggestedZone is statically defined in .baml and should always have a type")
+    }
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+    /// Access the `label` field builder.
+    pub fn property_label(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("label").expect(
+            "SuggestedZone.label is statically defined in .baml and should always be present",
+        )
+    }
+
+    /// Access the `zone_type` field builder.
+    pub fn property_zone_type(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("zone_type").expect(
+            "SuggestedZone.zone_type is statically defined in .baml and should always be present",
+        )
+    }
+
+    /// Access the `rationale` field builder.
+    pub fn property_rationale(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("rationale").expect(
+            "SuggestedZone.rationale is statically defined in .baml and should always be present",
+        )
+    }
+
+    /// Access the `approximate_area_sqft` field builder.
+    pub fn property_approximate_area_sqft(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("approximate_area_sqft")
+            .expect("SuggestedZone.approximate_area_sqft is statically defined in .baml and should always be present")
+    }
+}
+
 /// Wrapper for the `TierInput` class builder.
 ///
 /// Provides type-safe method access to fields defined in the schema.

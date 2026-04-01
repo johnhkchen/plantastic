@@ -6,6 +6,7 @@
 
 pub mod annotate;
 pub mod cluster;
+pub mod eigenvalue;
 pub mod error;
 pub mod export;
 pub mod feature;
@@ -22,6 +23,7 @@ pub use annotate::{
     ClassifiedFeatureRef, FeatureAnnotation,
 };
 pub use cluster::{Cluster, ClusterConfig, ClusterResult};
+pub use eigenvalue::{compute_point_features, PointFeatures};
 pub use error::ScanError;
 pub use export::{generate_terrain, ExportConfig, TerrainMetadata, TerrainOutput};
 pub use feature::{extract_candidates, FeatureCandidate};

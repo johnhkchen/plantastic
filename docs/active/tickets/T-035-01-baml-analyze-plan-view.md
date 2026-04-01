@@ -5,7 +5,7 @@ title: baml-analyze-plan-view
 type: task
 status: open
 priority: medium
-phase: research
+phase: implement
 depends_on: [T-034-02]
 ---
 

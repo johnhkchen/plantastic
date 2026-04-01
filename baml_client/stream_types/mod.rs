@@ -30,6 +30,12 @@ pub enum StreamTypes {
 
     ProposalContent(ProposalContent),
 
+    SiteAnalysis(SiteAnalysis),
+
+    SiteObservation(SiteObservation),
+
+    SuggestedZone(SuggestedZone),
+
     TierInput(TierInput),
 
     TierNarrative(TierNarrative),
@@ -57,6 +63,12 @@ impl baml::KnownTypes for StreamTypes {
             StreamTypes::PlanterStyle(_) => "PlanterStyle",
 
             StreamTypes::ProposalContent(_) => "ProposalContent",
+
+            StreamTypes::SiteAnalysis(_) => "SiteAnalysis",
+
+            StreamTypes::SiteObservation(_) => "SiteObservation",
+
+            StreamTypes::SuggestedZone(_) => "SuggestedZone",
 
             StreamTypes::TierInput(_) => "TierInput",
 

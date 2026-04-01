@@ -132,6 +132,52 @@ impl AsRef<ProposalContent> for ProposalContent {
 
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
+pub struct SiteAnalysis {
+    pub features: Vec<ClassifiedFeature>,
+
+    pub suggested_zones: Vec<SuggestedZone>,
+
+    pub site_observations: Vec<SiteObservation>,
+}
+
+impl AsRef<SiteAnalysis> for SiteAnalysis {
+    fn as_ref(&self) -> &SiteAnalysis {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
+
+pub struct SiteObservation {
+    pub observation: String,
+}
+
+impl AsRef<SiteObservation> for SiteObservation {
+    fn as_ref(&self) -> &SiteObservation {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
+
+pub struct SuggestedZone {
+    pub label: String,
+
+    pub zone_type: String,
+
+    pub rationale: String,
+
+    pub approximate_area_sqft: f64,
+}
+
+impl AsRef<SuggestedZone> for SuggestedZone {
+    fn as_ref(&self) -> &SuggestedZone {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
+
 pub struct TierInput {
     pub tier_level: String,
 

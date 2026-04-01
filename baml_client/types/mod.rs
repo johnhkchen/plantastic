@@ -35,6 +35,12 @@ pub enum Types {
 
     ProposalContent(ProposalContent),
 
+    SiteAnalysis(SiteAnalysis),
+
+    SiteObservation(SiteObservation),
+
+    SuggestedZone(SuggestedZone),
+
     TierInput(TierInput),
 
     TierNarrative(TierNarrative),
@@ -62,6 +68,12 @@ impl baml::KnownTypes for Types {
             Types::PlanterStyle(_) => "PlanterStyle",
 
             Types::ProposalContent(_) => "ProposalContent",
+
+            Types::SiteAnalysis(_) => "SiteAnalysis",
+
+            Types::SiteObservation(_) => "SiteObservation",
+
+            Types::SuggestedZone(_) => "SuggestedZone",
 
             Types::TierInput(_) => "TierInput",
 
