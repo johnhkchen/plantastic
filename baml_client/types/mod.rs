@@ -7,13 +7,13 @@
 
 mod classes;
 mod enums;
-mod type_aliases;
 mod unions;
+mod type_aliases;
 
 pub use classes::*;
 pub use enums::*;
-pub use type_aliases::*;
 pub use unions::*;
+pub use type_aliases::*;
 
 // Re-export types from baml runtime
 pub use baml::{Audio, Image, Pdf, Video};
@@ -23,7 +23,10 @@ pub use baml::{Checked, StreamState};
 /// Serves as the compile-time type registry for BamlValue.
 #[derive(Debug, Clone)]
 pub enum Types {
+
     ClassifiedFeature(ClassifiedFeature),
+
+    Discrepancy(Discrepancy),
 
     FeatureCandidateInput(FeatureCandidateInput),
 
@@ -34,6 +37,16 @@ pub enum Types {
     PlanterStyle(PlanterStyle),
 
     ProposalContent(ProposalContent),
+
+    RecommendedZone(RecommendedZone),
+
+    ReconciledFeature(ReconciledFeature),
+
+    ReconciledSite(ReconciledSite),
+
+    SatelliteBaseline(SatelliteBaseline),
+
+    SatelliteTree(SatelliteTree),
 
     SiteAnalysis(SiteAnalysis),
 
@@ -48,6 +61,9 @@ pub enum Types {
     ZoneCallout(ZoneCallout),
 
     ZoneSummary(ZoneSummary),
+
+
+
 }
 
 impl baml::KnownTypes for Types {
@@ -57,7 +73,10 @@ impl baml::KnownTypes for Types {
 
     fn type_name(&self) -> &'static str {
         match self {
+
             Types::ClassifiedFeature(_) => "ClassifiedFeature",
+
+            Types::Discrepancy(_) => "Discrepancy",
 
             Types::FeatureCandidateInput(_) => "FeatureCandidateInput",
 
@@ -68,6 +87,16 @@ impl baml::KnownTypes for Types {
             Types::PlanterStyle(_) => "PlanterStyle",
 
             Types::ProposalContent(_) => "ProposalContent",
+
+            Types::RecommendedZone(_) => "RecommendedZone",
+
+            Types::ReconciledFeature(_) => "ReconciledFeature",
+
+            Types::ReconciledSite(_) => "ReconciledSite",
+
+            Types::SatelliteBaseline(_) => "SatelliteBaseline",
+
+            Types::SatelliteTree(_) => "SatelliteTree",
 
             Types::SiteAnalysis(_) => "SiteAnalysis",
 
@@ -82,6 +111,10 @@ impl baml::KnownTypes for Types {
             Types::ZoneCallout(_) => "ZoneCallout",
 
             Types::ZoneSummary(_) => "ZoneSummary",
+
+
+
+
         }
     }
 }

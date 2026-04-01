@@ -5,7 +5,7 @@ title: reconcile-site-data
 type: task
 status: open
 priority: medium
-phase: research
+phase: implement
 depends_on: [T-035-01]
 ---
 

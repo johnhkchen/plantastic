@@ -8,17 +8,20 @@
 //! Full implementation coming in Phase 6.
 
 mod classes;
-mod type_aliases;
 mod unions;
+mod type_aliases;
 
 pub use classes::*;
-pub use type_aliases::*;
 pub use unions::*;
+pub use type_aliases::*;
 
 /// Streaming variants of types (all fields Optional).
 #[derive(Debug, Clone)]
 pub enum StreamTypes {
+
     ClassifiedFeature(ClassifiedFeature),
+
+    Discrepancy(Discrepancy),
 
     FeatureCandidateInput(FeatureCandidateInput),
 
@@ -29,6 +32,16 @@ pub enum StreamTypes {
     PlanterStyle(PlanterStyle),
 
     ProposalContent(ProposalContent),
+
+    RecommendedZone(RecommendedZone),
+
+    ReconciledFeature(ReconciledFeature),
+
+    ReconciledSite(ReconciledSite),
+
+    SatelliteBaseline(SatelliteBaseline),
+
+    SatelliteTree(SatelliteTree),
 
     SiteAnalysis(SiteAnalysis),
 
@@ -43,6 +56,8 @@ pub enum StreamTypes {
     ZoneCallout(ZoneCallout),
 
     ZoneSummary(ZoneSummary),
+
+
 }
 
 impl baml::KnownTypes for StreamTypes {
@@ -52,7 +67,10 @@ impl baml::KnownTypes for StreamTypes {
 
     fn type_name(&self) -> &'static str {
         match self {
+
             StreamTypes::ClassifiedFeature(_) => "ClassifiedFeature",
+
+            StreamTypes::Discrepancy(_) => "Discrepancy",
 
             StreamTypes::FeatureCandidateInput(_) => "FeatureCandidateInput",
 
@@ -63,6 +81,16 @@ impl baml::KnownTypes for StreamTypes {
             StreamTypes::PlanterStyle(_) => "PlanterStyle",
 
             StreamTypes::ProposalContent(_) => "ProposalContent",
+
+            StreamTypes::RecommendedZone(_) => "RecommendedZone",
+
+            StreamTypes::ReconciledFeature(_) => "ReconciledFeature",
+
+            StreamTypes::ReconciledSite(_) => "ReconciledSite",
+
+            StreamTypes::SatelliteBaseline(_) => "SatelliteBaseline",
+
+            StreamTypes::SatelliteTree(_) => "SatelliteTree",
 
             StreamTypes::SiteAnalysis(_) => "SiteAnalysis",
 
@@ -77,6 +105,9 @@ impl baml::KnownTypes for StreamTypes {
             StreamTypes::ZoneCallout(_) => "ZoneCallout",
 
             StreamTypes::ZoneSummary(_) => "ZoneSummary",
+
+
+
         }
     }
 }

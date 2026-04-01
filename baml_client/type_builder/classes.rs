@@ -5,6 +5,7 @@
 
 //! Generated class builder wrappers for type-safe field access.
 
+
 /// Wrapper for the `ClassifiedFeature` class builder.
 ///
 /// Provides type-safe method access to fields defined in the schema.
@@ -27,14 +28,15 @@ impl ClassifiedFeatureClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner.as_type().expect(
-            "ClassifiedFeature is statically defined in .baml and should always have a type",
-        )
+        self.inner.as_type()
+            .expect("ClassifiedFeature is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
+
 
     /// Access the `cluster_id` field builder.
     pub fn property_cluster_id(&self) -> baml::ClassPropertyBuilder {
@@ -42,12 +44,13 @@ impl ClassifiedFeatureClassBuilder {
             .expect("ClassifiedFeature.cluster_id is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `label` field builder.
     pub fn property_label(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("label").expect(
-            "ClassifiedFeature.label is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("label")
+            .expect("ClassifiedFeature.label is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `category` field builder.
     pub fn property_category(&self) -> baml::ClassPropertyBuilder {
@@ -55,12 +58,13 @@ impl ClassifiedFeatureClassBuilder {
             .expect("ClassifiedFeature.category is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `species` field builder.
     pub fn property_species(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("species").expect(
-            "ClassifiedFeature.species is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("species")
+            .expect("ClassifiedFeature.species is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `confidence` field builder.
     pub fn property_confidence(&self) -> baml::ClassPropertyBuilder {
@@ -68,18 +72,77 @@ impl ClassifiedFeatureClassBuilder {
             .expect("ClassifiedFeature.confidence is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `reasoning` field builder.
     pub fn property_reasoning(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("reasoning")
             .expect("ClassifiedFeature.reasoning is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `landscape_notes` field builder.
     pub fn property_landscape_notes(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("landscape_notes")
             .expect("ClassifiedFeature.landscape_notes is statically defined in .baml and should always be present")
     }
+
 }
+
+
+/// Wrapper for the `Discrepancy` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct DiscrepancyClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl DiscrepancyClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner.as_type()
+            .expect("Discrepancy is statically defined in .baml and should always have a type")
+    }
+
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+
+    /// Access the `description` field builder.
+    pub fn property_description(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("description")
+            .expect("Discrepancy.description is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `possible_explanation` field builder.
+    pub fn property_possible_explanation(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("possible_explanation")
+            .expect("Discrepancy.possible_explanation is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `design_implication` field builder.
+    pub fn property_design_implication(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("design_implication")
+            .expect("Discrepancy.design_implication is statically defined in .baml and should always be present")
+    }
+
+}
+
 
 /// Wrapper for the `FeatureCandidateInput` class builder.
 ///
@@ -103,14 +166,15 @@ impl FeatureCandidateInputClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner.as_type().expect(
-            "FeatureCandidateInput is statically defined in .baml and should always have a type",
-        )
+        self.inner.as_type()
+            .expect("FeatureCandidateInput is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
+
 
     /// Access the `cluster_id` field builder.
     pub fn property_cluster_id(&self) -> baml::ClassPropertyBuilder {
@@ -118,11 +182,13 @@ impl FeatureCandidateInputClassBuilder {
             .expect("FeatureCandidateInput.cluster_id is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `centroid_x` field builder.
     pub fn property_centroid_x(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("centroid_x")
             .expect("FeatureCandidateInput.centroid_x is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `centroid_y` field builder.
     pub fn property_centroid_y(&self) -> baml::ClassPropertyBuilder {
@@ -130,11 +196,13 @@ impl FeatureCandidateInputClassBuilder {
             .expect("FeatureCandidateInput.centroid_y is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `centroid_z` field builder.
     pub fn property_centroid_z(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("centroid_z")
             .expect("FeatureCandidateInput.centroid_z is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `height_ft` field builder.
     pub fn property_height_ft(&self) -> baml::ClassPropertyBuilder {
@@ -142,11 +210,13 @@ impl FeatureCandidateInputClassBuilder {
             .expect("FeatureCandidateInput.height_ft is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `spread_ft` field builder.
     pub fn property_spread_ft(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("spread_ft")
             .expect("FeatureCandidateInput.spread_ft is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `point_count` field builder.
     pub fn property_point_count(&self) -> baml::ClassPropertyBuilder {
@@ -154,11 +224,13 @@ impl FeatureCandidateInputClassBuilder {
             .expect("FeatureCandidateInput.point_count is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `dominant_color` field builder.
     pub fn property_dominant_color(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("dominant_color")
             .expect("FeatureCandidateInput.dominant_color is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `vertical_profile` field builder.
     pub fn property_vertical_profile(&self) -> baml::ClassPropertyBuilder {
@@ -166,12 +238,15 @@ impl FeatureCandidateInputClassBuilder {
             .expect("FeatureCandidateInput.vertical_profile is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `density` field builder.
     pub fn property_density(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("density")
             .expect("FeatureCandidateInput.density is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `PlantSelection` class builder.
 ///
@@ -195,14 +270,15 @@ impl PlantSelectionClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("PlantSelection is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
+
 
     /// Access the `common_name` field builder.
     pub fn property_common_name(&self) -> baml::ClassPropertyBuilder {
@@ -210,11 +286,13 @@ impl PlantSelectionClassBuilder {
             .expect("PlantSelection.common_name is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `botanical_name` field builder.
     pub fn property_botanical_name(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("botanical_name")
             .expect("PlantSelection.botanical_name is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `spacing_inches` field builder.
     pub fn property_spacing_inches(&self) -> baml::ClassPropertyBuilder {
@@ -222,12 +300,15 @@ impl PlantSelectionClassBuilder {
             .expect("PlantSelection.spacing_inches is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `why_this_plant` field builder.
     pub fn property_why_this_plant(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("why_this_plant")
             .expect("PlantSelection.why_this_plant is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `PlanterEstimate` class builder.
 ///
@@ -251,22 +332,24 @@ impl PlanterEstimateClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("PlanterEstimate is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `styles` field builder.
     pub fn property_styles(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("styles").expect(
-            "PlanterEstimate.styles is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("styles")
+            .expect("PlanterEstimate.styles is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `PlanterStyle` class builder.
 ///
@@ -290,28 +373,29 @@ impl PlanterStyleClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("PlanterStyle is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `style_name` field builder.
     pub fn property_style_name(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("style_name").expect(
-            "PlanterStyle.style_name is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("style_name")
+            .expect("PlanterStyle.style_name is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `description` field builder.
     pub fn property_description(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("description").expect(
-            "PlanterStyle.description is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("description")
+            .expect("PlanterStyle.description is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `plant_selections` field builder.
     pub fn property_plant_selections(&self) -> baml::ClassPropertyBuilder {
@@ -319,18 +403,22 @@ impl PlanterStyleClassBuilder {
             .expect("PlanterStyle.plant_selections is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `soil_depth_inches` field builder.
     pub fn property_soil_depth_inches(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("soil_depth_inches")
             .expect("PlanterStyle.soil_depth_inches is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `design_rationale` field builder.
     pub fn property_design_rationale(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("design_rationale")
             .expect("PlanterStyle.design_rationale is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `ProposalContent` class builder.
 ///
@@ -354,14 +442,15 @@ impl ProposalContentClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("ProposalContent is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
+
 
     /// Access the `intro_paragraph` field builder.
     pub fn property_intro_paragraph(&self) -> baml::ClassPropertyBuilder {
@@ -369,11 +458,13 @@ impl ProposalContentClassBuilder {
             .expect("ProposalContent.intro_paragraph is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `tier_narratives` field builder.
     pub fn property_tier_narratives(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("tier_narratives")
             .expect("ProposalContent.tier_narratives is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `zone_callouts` field builder.
     pub fn property_zone_callouts(&self) -> baml::ClassPropertyBuilder {
@@ -381,12 +472,339 @@ impl ProposalContentClassBuilder {
             .expect("ProposalContent.zone_callouts is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `closing_paragraph` field builder.
     pub fn property_closing_paragraph(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("closing_paragraph")
             .expect("ProposalContent.closing_paragraph is statically defined in .baml and should always be present")
     }
+
 }
+
+
+/// Wrapper for the `RecommendedZone` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct RecommendedZoneClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl RecommendedZoneClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner.as_type()
+            .expect("RecommendedZone is statically defined in .baml and should always have a type")
+    }
+
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+
+    /// Access the `label` field builder.
+    pub fn property_label(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("label")
+            .expect("RecommendedZone.label is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `zone_type` field builder.
+    pub fn property_zone_type(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("zone_type")
+            .expect("RecommendedZone.zone_type is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `rationale` field builder.
+    pub fn property_rationale(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("rationale")
+            .expect("RecommendedZone.rationale is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `approximate_area_sqft` field builder.
+    pub fn property_approximate_area_sqft(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("approximate_area_sqft")
+            .expect("RecommendedZone.approximate_area_sqft is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `sun_exposure_hours` field builder.
+    pub fn property_sun_exposure_hours(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("sun_exposure_hours")
+            .expect("RecommendedZone.sun_exposure_hours is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `data_sources` field builder.
+    pub fn property_data_sources(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("data_sources")
+            .expect("RecommendedZone.data_sources is statically defined in .baml and should always be present")
+    }
+
+}
+
+
+/// Wrapper for the `ReconciledFeature` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct ReconciledFeatureClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl ReconciledFeatureClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner.as_type()
+            .expect("ReconciledFeature is statically defined in .baml and should always have a type")
+    }
+
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+
+    /// Access the `label` field builder.
+    pub fn property_label(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("label")
+            .expect("ReconciledFeature.label is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `category` field builder.
+    pub fn property_category(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("category")
+            .expect("ReconciledFeature.category is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `source` field builder.
+    pub fn property_source(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("source")
+            .expect("ReconciledFeature.source is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `confidence` field builder.
+    pub fn property_confidence(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("confidence")
+            .expect("ReconciledFeature.confidence is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `reasoning` field builder.
+    pub fn property_reasoning(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("reasoning")
+            .expect("ReconciledFeature.reasoning is statically defined in .baml and should always be present")
+    }
+
+}
+
+
+/// Wrapper for the `ReconciledSite` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct ReconciledSiteClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl ReconciledSiteClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner.as_type()
+            .expect("ReconciledSite is statically defined in .baml and should always have a type")
+    }
+
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+
+    /// Access the `confirmed_features` field builder.
+    pub fn property_confirmed_features(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("confirmed_features")
+            .expect("ReconciledSite.confirmed_features is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `scan_only_features` field builder.
+    pub fn property_scan_only_features(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("scan_only_features")
+            .expect("ReconciledSite.scan_only_features is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `satellite_only_features` field builder.
+    pub fn property_satellite_only_features(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("satellite_only_features")
+            .expect("ReconciledSite.satellite_only_features is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `discrepancies` field builder.
+    pub fn property_discrepancies(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("discrepancies")
+            .expect("ReconciledSite.discrepancies is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `recommended_zones` field builder.
+    pub fn property_recommended_zones(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("recommended_zones")
+            .expect("ReconciledSite.recommended_zones is statically defined in .baml and should always be present")
+    }
+
+}
+
+
+/// Wrapper for the `SatelliteBaseline` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct SatelliteBaselineClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl SatelliteBaselineClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner.as_type()
+            .expect("SatelliteBaseline is statically defined in .baml and should always have a type")
+    }
+
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+
+    /// Access the `lot_area_sqft` field builder.
+    pub fn property_lot_area_sqft(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("lot_area_sqft")
+            .expect("SatelliteBaseline.lot_area_sqft is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `trees` field builder.
+    pub fn property_trees(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("trees")
+            .expect("SatelliteBaseline.trees is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `avg_sun_hours` field builder.
+    pub fn property_avg_sun_hours(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("avg_sun_hours")
+            .expect("SatelliteBaseline.avg_sun_hours is statically defined in .baml and should always be present")
+    }
+
+}
+
+
+/// Wrapper for the `SatelliteTree` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct SatelliteTreeClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl SatelliteTreeClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner.as_type()
+            .expect("SatelliteTree is statically defined in .baml and should always have a type")
+    }
+
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+
+    /// Access the `height_ft` field builder.
+    pub fn property_height_ft(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("height_ft")
+            .expect("SatelliteTree.height_ft is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `spread_ft` field builder.
+    pub fn property_spread_ft(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("spread_ft")
+            .expect("SatelliteTree.spread_ft is statically defined in .baml and should always be present")
+    }
+
+
+    /// Access the `confidence` field builder.
+    pub fn property_confidence(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("confidence")
+            .expect("SatelliteTree.confidence is statically defined in .baml and should always be present")
+    }
+
+}
+
 
 /// Wrapper for the `SiteAnalysis` class builder.
 ///
@@ -410,21 +828,22 @@ impl SiteAnalysisClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("SiteAnalysis is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `features` field builder.
     pub fn property_features(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("features").expect(
-            "SiteAnalysis.features is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("features")
+            .expect("SiteAnalysis.features is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `suggested_zones` field builder.
     pub fn property_suggested_zones(&self) -> baml::ClassPropertyBuilder {
@@ -432,12 +851,15 @@ impl SiteAnalysisClassBuilder {
             .expect("SiteAnalysis.suggested_zones is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `site_observations` field builder.
     pub fn property_site_observations(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("site_observations")
             .expect("SiteAnalysis.site_observations is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `SiteObservation` class builder.
 ///
@@ -461,21 +883,24 @@ impl SiteObservationClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("SiteObservation is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
+
 
     /// Access the `observation` field builder.
     pub fn property_observation(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("observation")
             .expect("SiteObservation.observation is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `SuggestedZone` class builder.
 ///
@@ -499,42 +924,45 @@ impl SuggestedZoneClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("SuggestedZone is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `label` field builder.
     pub fn property_label(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("label").expect(
-            "SuggestedZone.label is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("label")
+            .expect("SuggestedZone.label is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `zone_type` field builder.
     pub fn property_zone_type(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("zone_type").expect(
-            "SuggestedZone.zone_type is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("zone_type")
+            .expect("SuggestedZone.zone_type is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `rationale` field builder.
     pub fn property_rationale(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("rationale").expect(
-            "SuggestedZone.rationale is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("rationale")
+            .expect("SuggestedZone.rationale is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `approximate_area_sqft` field builder.
     pub fn property_approximate_area_sqft(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("approximate_area_sqft")
             .expect("SuggestedZone.approximate_area_sqft is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `TierInput` class builder.
 ///
@@ -558,36 +986,38 @@ impl TierInputClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("TierInput is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `tier_level` field builder.
     pub fn property_tier_level(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("tier_level").expect(
-            "TierInput.tier_level is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("tier_level")
+            .expect("TierInput.tier_level is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `total` field builder.
     pub fn property_total(&self) -> baml::ClassPropertyBuilder {
-        self.inner
-            .get_property("total")
+        self.inner.get_property("total")
             .expect("TierInput.total is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `zones` field builder.
     pub fn property_zones(&self) -> baml::ClassPropertyBuilder {
-        self.inner
-            .get_property("zones")
+        self.inner.get_property("zones")
             .expect("TierInput.zones is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `TierNarrative` class builder.
 ///
@@ -611,42 +1041,45 @@ impl TierNarrativeClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("TierNarrative is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `tier_level` field builder.
     pub fn property_tier_level(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("tier_level").expect(
-            "TierNarrative.tier_level is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("tier_level")
+            .expect("TierNarrative.tier_level is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `headline` field builder.
     pub fn property_headline(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("headline").expect(
-            "TierNarrative.headline is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("headline")
+            .expect("TierNarrative.headline is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `description` field builder.
     pub fn property_description(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("description").expect(
-            "TierNarrative.description is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("description")
+            .expect("TierNarrative.description is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `differentiators` field builder.
     pub fn property_differentiators(&self) -> baml::ClassPropertyBuilder {
         self.inner.get_property("differentiators")
             .expect("TierNarrative.differentiators is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `ZoneCallout` class builder.
 ///
@@ -670,29 +1103,31 @@ impl ZoneCalloutClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("ZoneCallout is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `zone_label` field builder.
     pub fn property_zone_label(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("zone_label").expect(
-            "ZoneCallout.zone_label is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("zone_label")
+            .expect("ZoneCallout.zone_label is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `note` field builder.
     pub fn property_note(&self) -> baml::ClassPropertyBuilder {
-        self.inner
-            .get_property("note")
+        self.inner.get_property("note")
             .expect("ZoneCallout.note is statically defined in .baml and should always be present")
     }
+
 }
+
 
 /// Wrapper for the `ZoneSummary` class builder.
 ///
@@ -716,40 +1151,42 @@ impl ZoneSummaryClassBuilder {
 
     /// Get the class as a type definition.
     pub fn r#type(&self) -> baml::TypeDef {
-        self.inner
-            .as_type()
+        self.inner.as_type()
             .expect("ZoneSummary is statically defined in .baml and should always have a type")
     }
+
 
     // =========================================================================
     // Field Accessors (1:1 with schema field names)
     // =========================================================================
 
+
     /// Access the `label` field builder.
     pub fn property_label(&self) -> baml::ClassPropertyBuilder {
-        self.inner
-            .get_property("label")
+        self.inner.get_property("label")
             .expect("ZoneSummary.label is statically defined in .baml and should always be present")
     }
 
+
     /// Access the `zone_type` field builder.
     pub fn property_zone_type(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("zone_type").expect(
-            "ZoneSummary.zone_type is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("zone_type")
+            .expect("ZoneSummary.zone_type is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `area_sqft` field builder.
     pub fn property_area_sqft(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("area_sqft").expect(
-            "ZoneSummary.area_sqft is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("area_sqft")
+            .expect("ZoneSummary.area_sqft is statically defined in .baml and should always be present")
     }
+
 
     /// Access the `materials` field builder.
     pub fn property_materials(&self) -> baml::ClassPropertyBuilder {
-        self.inner.get_property("materials").expect(
-            "ZoneSummary.materials is statically defined in .baml and should always be present",
-        )
+        self.inner.get_property("materials")
+            .expect("ZoneSummary.materials is statically defined in .baml and should always be present")
     }
+
 }
+

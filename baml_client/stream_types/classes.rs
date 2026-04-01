@@ -3,32 +3,56 @@
 //
 // Learn more at https://docs.boundaryml.com
 
+
 //! Generated streaming class types.
 //!
 //! These types are used during streaming to hold partial results.
 //! Field types are already wrapped appropriately (Option, StreamState, etc.)
 
-use super::*;
-use crate::baml_client::types;
 use baml::BamlDecode;
+use crate::baml_client::types;
+use super::*;
+
+
+
+
 
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ClassifiedFeature {
+
+
+
     pub cluster_id: Option<i64>,
+
+
 
     pub label: Option<String>,
 
+
+
     pub category: Option<String>,
+
+
 
     pub species: Option<String>,
 
+
+
     pub confidence: Option<f64>,
+
+
 
     pub reasoning: Option<String>,
 
+
+
     pub landscape_notes: Option<String>,
+
+
 }
+
+
 
 impl AsRef<ClassifiedFeature> for ClassifiedFeature {
     fn as_ref(&self) -> &ClassifiedFeature {
@@ -36,29 +60,87 @@ impl AsRef<ClassifiedFeature> for ClassifiedFeature {
     }
 }
 
+
+
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct Discrepancy {
+
+
+
+    pub description: Option<String>,
+
+
+
+    pub possible_explanation: Option<String>,
+
+
+
+    pub design_implication: Option<String>,
+
+
+}
+
+
+
+impl AsRef<Discrepancy> for Discrepancy {
+    fn as_ref(&self) -> &Discrepancy {
+        self
+    }
+}
+
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct FeatureCandidateInput {
+
+
+
     pub cluster_id: Option<i64>,
+
+
 
     pub centroid_x: Option<f64>,
 
+
+
     pub centroid_y: Option<f64>,
+
+
 
     pub centroid_z: Option<f64>,
 
+
+
     pub height_ft: Option<f64>,
+
+
 
     pub spread_ft: Option<f64>,
 
+
+
     pub point_count: Option<i64>,
+
+
 
     pub dominant_color: Option<String>,
 
+
+
     pub vertical_profile: Option<String>,
 
+
+
     pub density: Option<f64>,
+
+
 }
+
+
 
 impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
     fn as_ref(&self) -> &FeatureCandidateInput {
@@ -66,17 +148,33 @@ impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct PlantSelection {
+
+
+
     pub common_name: Option<String>,
+
+
 
     pub botanical_name: Option<String>,
 
+
+
     pub spacing_inches: Option<f64>,
 
+
+
     pub why_this_plant: Option<String>,
+
+
 }
+
+
 
 impl AsRef<PlantSelection> for PlantSelection {
     fn as_ref(&self) -> &PlantSelection {
@@ -84,11 +182,21 @@ impl AsRef<PlantSelection> for PlantSelection {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct PlanterEstimate {
+
+
+
     pub styles: Vec<PlanterStyle>,
+
+
 }
+
+
 
 impl AsRef<PlanterEstimate> for PlanterEstimate {
     fn as_ref(&self) -> &PlanterEstimate {
@@ -96,19 +204,37 @@ impl AsRef<PlanterEstimate> for PlanterEstimate {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct PlanterStyle {
+
+
+
     pub style_name: Option<String>,
+
+
 
     pub description: Option<String>,
 
+
+
     pub plant_selections: Vec<PlantSelection>,
+
+
 
     pub soil_depth_inches: Option<f64>,
 
+
+
     pub design_rationale: Option<String>,
+
+
 }
+
+
 
 impl AsRef<PlanterStyle> for PlanterStyle {
     fn as_ref(&self) -> &PlanterStyle {
@@ -116,17 +242,33 @@ impl AsRef<PlanterStyle> for PlanterStyle {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ProposalContent {
+
+
+
     pub intro_paragraph: Option<String>,
+
+
 
     pub tier_narratives: Vec<TierNarrative>,
 
+
+
     pub zone_callouts: Vec<ZoneCallout>,
 
+
+
     pub closing_paragraph: Option<String>,
+
+
 }
+
+
 
 impl AsRef<ProposalContent> for ProposalContent {
     fn as_ref(&self) -> &ProposalContent {
@@ -134,15 +276,207 @@ impl AsRef<ProposalContent> for ProposalContent {
     }
 }
 
+
+
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct RecommendedZone {
+
+
+
+    pub label: Option<String>,
+
+
+
+    pub zone_type: Option<String>,
+
+
+
+    pub rationale: Option<String>,
+
+
+
+    pub approximate_area_sqft: Option<f64>,
+
+
+
+    pub sun_exposure_hours: Option<i64>,
+
+
+
+    pub data_sources: Option<String>,
+
+
+}
+
+
+
+impl AsRef<RecommendedZone> for RecommendedZone {
+    fn as_ref(&self) -> &RecommendedZone {
+        self
+    }
+}
+
+
+
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct ReconciledFeature {
+
+
+
+    pub label: Option<String>,
+
+
+
+    pub category: Option<String>,
+
+
+
+    pub source: Option<String>,
+
+
+
+    pub confidence: Option<f64>,
+
+
+
+    pub reasoning: Option<String>,
+
+
+}
+
+
+
+impl AsRef<ReconciledFeature> for ReconciledFeature {
+    fn as_ref(&self) -> &ReconciledFeature {
+        self
+    }
+}
+
+
+
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct ReconciledSite {
+
+
+
+    pub confirmed_features: Vec<ReconciledFeature>,
+
+
+
+    pub scan_only_features: Vec<ReconciledFeature>,
+
+
+
+    pub satellite_only_features: Vec<ReconciledFeature>,
+
+
+
+    pub discrepancies: Vec<Discrepancy>,
+
+
+
+    pub recommended_zones: Vec<RecommendedZone>,
+
+
+}
+
+
+
+impl AsRef<ReconciledSite> for ReconciledSite {
+    fn as_ref(&self) -> &ReconciledSite {
+        self
+    }
+}
+
+
+
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct SatelliteBaseline {
+
+
+
+    pub lot_area_sqft: Option<f64>,
+
+
+
+    pub trees: Vec<SatelliteTree>,
+
+
+
+    pub avg_sun_hours: Option<f64>,
+
+
+}
+
+
+
+impl AsRef<SatelliteBaseline> for SatelliteBaseline {
+    fn as_ref(&self) -> &SatelliteBaseline {
+        self
+    }
+}
+
+
+
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct SatelliteTree {
+
+
+
+    pub height_ft: Option<f64>,
+
+
+
+    pub spread_ft: Option<f64>,
+
+
+
+    pub confidence: Option<f64>,
+
+
+}
+
+
+
+impl AsRef<SatelliteTree> for SatelliteTree {
+    fn as_ref(&self) -> &SatelliteTree {
+        self
+    }
+}
+
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct SiteAnalysis {
+
+
+
     pub features: Vec<ClassifiedFeature>,
+
+
 
     pub suggested_zones: Vec<SuggestedZone>,
 
+
+
     pub site_observations: Vec<SiteObservation>,
+
+
 }
+
+
 
 impl AsRef<SiteAnalysis> for SiteAnalysis {
     fn as_ref(&self) -> &SiteAnalysis {
@@ -150,11 +484,21 @@ impl AsRef<SiteAnalysis> for SiteAnalysis {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct SiteObservation {
+
+
+
     pub observation: Option<String>,
+
+
 }
+
+
 
 impl AsRef<SiteObservation> for SiteObservation {
     fn as_ref(&self) -> &SiteObservation {
@@ -162,17 +506,33 @@ impl AsRef<SiteObservation> for SiteObservation {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct SuggestedZone {
+
+
+
     pub label: Option<String>,
+
+
 
     pub zone_type: Option<String>,
 
+
+
     pub rationale: Option<String>,
 
+
+
     pub approximate_area_sqft: Option<f64>,
+
+
 }
+
+
 
 impl AsRef<SuggestedZone> for SuggestedZone {
     fn as_ref(&self) -> &SuggestedZone {
@@ -180,15 +540,29 @@ impl AsRef<SuggestedZone> for SuggestedZone {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct TierInput {
+
+
+
     pub tier_level: Option<String>,
+
+
 
     pub total: Option<String>,
 
+
+
     pub zones: Vec<ZoneSummary>,
+
+
 }
+
+
 
 impl AsRef<TierInput> for TierInput {
     fn as_ref(&self) -> &TierInput {
@@ -196,17 +570,33 @@ impl AsRef<TierInput> for TierInput {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct TierNarrative {
+
+
+
     pub tier_level: Option<String>,
+
+
 
     pub headline: Option<String>,
 
+
+
     pub description: Option<String>,
 
+
+
     pub differentiators: Vec<String>,
+
+
 }
+
+
 
 impl AsRef<TierNarrative> for TierNarrative {
     fn as_ref(&self) -> &TierNarrative {
@@ -214,13 +604,25 @@ impl AsRef<TierNarrative> for TierNarrative {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ZoneCallout {
+
+
+
     pub zone_label: Option<String>,
 
+
+
     pub note: Option<String>,
+
+
 }
+
+
 
 impl AsRef<ZoneCallout> for ZoneCallout {
     fn as_ref(&self) -> &ZoneCallout {
@@ -228,20 +630,37 @@ impl AsRef<ZoneCallout> for ZoneCallout {
     }
 }
 
+
+
+
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ZoneSummary {
+
+
+
     pub label: Option<String>,
+
+
 
     pub zone_type: Option<String>,
 
+
+
     pub area_sqft: Option<f64>,
 
+
+
     pub materials: Vec<String>,
+
+
 }
+
+
 
 impl AsRef<ZoneSummary> for ZoneSummary {
     fn as_ref(&self) -> &ZoneSummary {
         self
     }
 }
+
