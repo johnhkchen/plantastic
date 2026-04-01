@@ -234,6 +234,7 @@ mod tests {
     }
 
     /// Generate points on a unit sphere using Fibonacci lattice.
+    #[allow(dead_code)] // Test utility for future spherical feature tests
     fn fibonacci_sphere(n: usize) -> Vec<Point> {
         let golden_ratio = (1.0 + 5.0_f32.sqrt()) / 2.0;
         (0..n)
@@ -328,9 +329,7 @@ mod tests {
                 .enumerate()
                 .filter(|(i, _)| {
                     let p = &points[*i].position;
-                    p[0] > 0.2 && p[0] < 0.8
-                        && p[1] > 0.2 && p[1] < 0.8
-                        && p[2] > 0.2 && p[2] < 0.8
+                    p[0] > 0.2 && p[0] < 0.8 && p[1] > 0.2 && p[1] < 0.8 && p[2] > 0.2 && p[2] < 0.8
                 })
                 .collect();
 
