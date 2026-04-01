@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  rust:
+    name: Rust (fmt, lint, test, integration, scenarios)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: taiki-e/install-action@just
+
+      - name: Install neonctl
+        run: npm install -g neonctl@latest
+
+      - name: Create Neon branch
+        id: neon-branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          BRANCH_NAME="ci-run-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+          BRANCH_JSON=$(timeout 30 neonctl branches create \
+            --project-id "$NEON_PROJECT_ID" \
+            --name "$BRANCH_NAME" \
+            --output json)
+          DATABASE_URL=$(echo "$BRANCH_JSON" | jq -r '.connection_uri')
+          echo "database_url=$DATABASE_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Check formatting
+        run: just fmt-check
+
+      - name: Lint
+        run: just lint
+
+      - name: Test
+        run: just test
+
+      - name: Integration tests
+        env:
+          DATABASE_URL: ${{ steps.neon-branch.outputs.database_url }}
+        run: just test-integration-ci
+
+      - name: Scenarios
+        run: just scenarios
+
+      - name: Delete Neon branch
+        if: always()
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          BRANCH_NAME="${{ steps.neon-branch.outputs.branch_name }}"
+          if [ -n "$BRANCH_NAME" ]; then
+            neonctl branches delete \
+              --project-id "$NEON_PROJECT_ID" \
+              "$BRANCH_NAME" || true
+          fi
+
+  web:
+    name: Web (svelte-check, lint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Svelte check
+        run: pnpm run check
+
+      - name: Lint
+        run: pnpm run lint

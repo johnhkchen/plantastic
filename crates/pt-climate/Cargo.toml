@@ -1,0 +1,16 @@
+[package]
+name = "pt-climate"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+pt-test-utils = { path = "../pt-test-utils" }
+
+[lints]
+workspace = true

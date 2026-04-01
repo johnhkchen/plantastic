@@ -1,0 +1,138 @@
+# T-013-01 Structure — Bevy WASM glTF Loading
+
+## Files created
+
+### apps/viewer/Cargo.toml
+Standalone binary crate (NOT a workspace member). Dependencies:
+- `bevy` 0.15 with `default-features = false` + minimal feature set
+- `bevy_panorbit_camera` for orbit controls
+- Release profile optimized for WASM size (`opt-level = "z"`, LTO, strip)
+
+### apps/viewer/Trunk.toml
+Trunk build configuration:
+- dist directory: `dist`
+- Asset directory: `assets` (copied to dist on build)
+- No custom hooks needed — Trunk handles wasm-opt in release mode
+
+### apps/viewer/index.html
+HTML shell for the Bevy app:
+- `<canvas>` element with id for Bevy to attach to
+- Loading indicator (CSS-only spinner, hidden when WASM loads)
+- Viewport meta tag for mobile scaling
+- Link to WASM + JS glue (Trunk injects these via `data-trunk` attributes)
+- Minimal inline CSS for fullscreen canvas + loading state
+
+### apps/viewer/src/main.rs
+Bevy app entry point:
+- `fn main()` with `App::new()`
+- `DefaultPlugins` replaced with explicit plugin list (Window, Asset, Render, PBR, glTF, Winit, Log)
+- WebGL2 backend selection
+- Canvas selector configuration (attach to specific HTML element)
+- Registers `CameraPlugin`, `ScenePlugin`, `LightingPlugin`
+- `FrameTimeDiagnosticsPlugin` + `LogDiagnosticsPlugin` for FPS logging
+- Window configuration: fit canvas to parent, prevent default browser events
+
+### apps/viewer/src/camera.rs
+Orbit camera module:
+- `CameraPlugin` struct implementing `Plugin`
+- Startup system: spawns `Camera3d` with `PanOrbitCamera` component
+- Initial position: looking at origin from distance ~5 units
+- Touch support enabled via `bevy_panorbit_camera` defaults
+
+### apps/viewer/src/scene.rs
+glTF scene loading module:
+- `ScenePlugin` struct implementing `Plugin`
+- Startup system: loads `test_scene.glb` via `AssetServer`
+- Spawn system: watches for loaded glTF, spawns `SceneRoot` when ready
+- Centers the model at origin (or uses model's native transform)
+- Logs load time to console for measurement
+
+### apps/viewer/src/lighting.rs
+Lighting setup module:
+- `LightingPlugin` struct implementing `Plugin`
+- Startup system: spawns directional light (sun-like, casting shadows)
+- Ambient light at low intensity for fill
+- Light direction: ~45 degrees elevation, slightly off-axis for depth
+
+### apps/viewer/assets/models/test_scene.glb
+Test glTF model. We'll generate a minimal programmatic .glb file — a simple
+colored cube with PBR materials — to avoid external download dependencies. If
+the programmatic approach proves insufficient for PBR validation, we'll document
+how to download DamagedHelmet.glb from the Khronos sample repository.
+
+## Files modified
+
+### .gitignore
+Add entries for Trunk build artifacts:
+```
+# Bevy viewer WASM build output
+apps/viewer/dist/
+```
+
+## Files NOT modified (explicitly)
+
+### Cargo.toml (workspace root)
+**Not modified.** `apps/viewer/` is intentionally outside the workspace. It has
+its own Cargo.toml with its own dependency tree. Bevy's dependency graph (~300+
+crates) does not need to intersect with the Axum/sqlx workspace graph.
+
+### tests/scenarios/src/progress.rs
+**Not modified in this ticket.** The "Bevy viewer" milestone will be claimed by
+T-013-02 when the viewer is embedded in SvelteKit. This spike proves the tech
+works but doesn't deliver the integrated milestone.
+
+### tests/scenarios/src/suites/
+**Not modified.** No scenario should flip to passing from this spike alone.
+S.2.4 and S.4.1 require both this spike AND T-013-02 (iframe embedding).
+
+## Module boundaries
+
+```
+apps/viewer/
+  src/
+    main.rs         ── owns App setup, plugin registration, window config
+    camera.rs       ── owns CameraPlugin, orbit camera spawn + config
+    scene.rs        ── owns ScenePlugin, glTF loading + spawn + timing
+    lighting.rs     ── owns LightingPlugin, directional + ambient light setup
+```
+
+Each module is a Bevy `Plugin`. main.rs composes them. No cross-module dependencies
+(camera doesn't know about scene, scene doesn't know about lighting). This mirrors
+the spec's file layout and sets up clean boundaries for T-013-02 to add
+`interaction.rs` and `tiers.rs`.
+
+## Dependency graph
+
+```
+apps/viewer (standalone binary, wasm32-unknown-unknown target)
+  ├── bevy 0.15 (feature-gated: render, pbr, gltf, winit, asset, log)
+  │   └── wgpu → WebGL2 backend on WASM
+  └── bevy_panorbit_camera (orbit camera controls)
+```
+
+No dependency on any `crates/*` workspace member. No shared types. The viewer
+is a pure rendering app that takes a .glb URL and displays it. Integration with
+the domain model happens through the glTF file format, not Rust type sharing.
+
+## Build artifacts
+
+```
+apps/viewer/dist/          (trunk build output, gitignored)
+  ├── index.html           (processed HTML with WASM + JS links)
+  ├── viewer-*.wasm        (compiled WASM binary — the file we measure)
+  ├── viewer-*.js          (JS glue code generated by wasm-bindgen)
+  └── assets/
+      └── models/
+          └── test_scene.glb  (copied from source)
+```
+
+## Ordering of changes
+
+1. Create `apps/viewer/Cargo.toml` first (establishes the crate).
+2. Create `src/lighting.rs`, `src/camera.rs`, `src/scene.rs` (leaf modules).
+3. Create `src/main.rs` (composes the modules).
+4. Create `index.html` and `Trunk.toml` (build infrastructure).
+5. Create or place test asset in `assets/models/`.
+6. Update `.gitignore` for dist output.
+7. Build and test: `cd apps/viewer && trunk build --release`.
+8. Measure binary size, serve and test in browsers.

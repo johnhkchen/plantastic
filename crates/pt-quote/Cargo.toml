@@ -1,0 +1,22 @@
+[package]
+name = "pt-quote"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+geo.workspace = true
+serde.workspace = true
+uuid.workspace = true
+rust_decimal.workspace = true
+pt-geo = { path = "../pt-geo" }
+pt-project = { path = "../pt-project" }
+pt-materials = { path = "../pt-materials" }
+
+[dev-dependencies]
+serde_json.workspace = true
+pt-test-utils = { path = "../pt-test-utils" }
+
+[lints]
+workspace = true

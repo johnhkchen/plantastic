@@ -1,0 +1,32 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# Bevy viewer WASM build output
+apps/viewer/dist/
+apps/viewer/target/
+web/static/viewer/
+
+# Node
+node_modules/
+.svelte-kit/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# SST
+.sst/
+.open-next/
+
+# Lambda build staging
+target/lambda/

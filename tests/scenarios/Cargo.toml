@@ -1,0 +1,30 @@
+[package]
+name = "pt-scenarios"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Value delivery scenario tests for Plantastic"
+
+[lints]
+workspace = true
+
+[dependencies]
+geo = { workspace = true }
+rust_decimal = { workspace = true }
+pt-geo = { path = "../../crates/pt-geo" }
+pt-project = { path = "../../crates/pt-project" }
+pt-materials = { path = "../../crates/pt-materials" }
+pt-quote = { path = "../../crates/pt-quote" }
+pt-scan = { path = "../../crates/pt-scan" }
+pt-satellite = { path = "../../crates/pt-satellite" }
+pt-solar = { path = "../../crates/pt-solar" }
+pt-repo = { path = "../../crates/pt-repo" }
+plantastic-api = { path = "../../crates/plantastic-api" }
+chrono = { workspace = true }
+tokio = { workspace = true }
+sqlx = { workspace = true }
+axum = { workspace = true }
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+serde_json = { workspace = true }
+uuid = { workspace = true }

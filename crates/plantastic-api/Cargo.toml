@@ -1,0 +1,49 @@
+[package]
+name = "plantastic-api"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "plantastic_api"
+path = "src/lib.rs"
+
+[[bin]]
+name = "plantastic-api"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true, features = ["macros", "multipart"] }
+tower-http.workspace = true
+lambda_http.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+dotenvy.workspace = true
+sqlx.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+geo.workspace = true
+geojson.workspace = true
+pt-repo = { path = "../pt-repo" }
+pt-satellite = { path = "../pt-satellite" }
+pt-project = { path = "../pt-project" }
+pt-materials = { path = "../pt-materials" }
+pt-geo = { path = "../pt-geo" }
+pt-quote = { path = "../pt-quote" }
+pt-scan = { path = "../pt-scan" }
+aws-sdk-s3 = { workspace = true }
+aws-config = { workspace = true }
+dashmap = { workspace = true }
+
+[dev-dependencies]
+pt-test-utils = { path = "../pt-test-utils" }
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
+[lints]
+workspace = true

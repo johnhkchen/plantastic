@@ -1,0 +1,14 @@
+[build]
+# Ensure consistent behavior across dev machines
+rustflags = []
+
+[env]
+# Tests that exceed 10 seconds trigger a warning from the harness below.
+# If you genuinely need a slow test, annotate it — see CLAUDE.md rule 4.
+RUST_TEST_TIME_UNIT = "10000,30000"
+RUST_TEST_TIME_INTEGRATION = "10000,60000"
+
+[alias]
+# Quick aliases
+t = "test --workspace"
+c = "clippy --workspace --all-targets -- -D warnings"

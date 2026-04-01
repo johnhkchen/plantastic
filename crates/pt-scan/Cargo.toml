@@ -1,0 +1,26 @@
+[package]
+name = "pt-scan"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+delaunator = "1"
+image = { version = "0.25", default-features = false, features = ["png"] }
+indexmap = "2"
+kiddo = "5"
+meshopt = "0.4"
+nalgebra = "0.34"
+ply-rs-bw = "3"
+rand = "0.10"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+approx = "0.5"
+pt-test-utils = { path = "../pt-test-utils" }
+
+[lints]
+workspace = true

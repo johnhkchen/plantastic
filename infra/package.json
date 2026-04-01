@@ -1,0 +1,7 @@
+{
+  "name": "plantastic-infra",
+  "private": true,
+  "devDependencies": {
+    "sst": "^3"
+  }
+}

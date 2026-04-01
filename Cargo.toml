@@ -1,0 +1,58 @@
+[workspace]
+members = ["crates/*", "tests/scenarios"]
+exclude = ["apps/viewer"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+rust-version = "1.75"
+
+[workspace.dependencies]
+geo = "0.29"
+geojson = "0.24"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = { version = "1", features = ["serde-with-str"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres", "chrono", "uuid", "json", "rust_decimal", "migrate"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+thiserror = "2"
+axum = "0.8"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+lambda_http = "0.14"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+dotenvy = "0.15"
+aws-sdk-s3 = "1"
+aws-config = "1"
+dashmap = "6"
+
+# Workspace-wide lint configuration.
+# Strict on correctness and safety. Reasonable on style.
+[workspace.lints.clippy]
+# Correctness — these catch real bugs
+correctness = { level = "deny", priority = -1 }
+# Suspicious patterns — likely bugs
+suspicious = { level = "deny", priority = -1 }
+# Style — keep consistent but don't block on style-only issues
+style = { level = "warn", priority = -1 }
+# Pedantic — enable specific useful ones, not the full set
+cast_possible_truncation = "warn"
+cast_sign_loss = "warn"
+missing_errors_doc = "warn"
+needless_pass_by_value = "warn"
+redundant_closure_for_method_calls = "warn"
+# Allow these — too noisy for the value they provide
+must_use_candidate = "allow"
+module_name_repetitions = "allow"
+doc_markdown = "allow"
+missing_panics_doc = "allow"
+
+[workspace.lints.rust]
+# Safety
+unsafe_code = "deny"
+# Quality
+unused_must_use = "deny"
+missing_debug_implementations = "warn"

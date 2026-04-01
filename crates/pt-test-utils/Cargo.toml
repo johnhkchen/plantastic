@@ -1,0 +1,9 @@
+[package]
+name = "pt-test-utils"
+version = "0.1.0"
+edition.workspace = true
+publish = false
+description = "Test utilities: timeout enforcement, slow test detection"
+
+[lints]
+workspace = true
