@@ -5,7 +5,7 @@ title: empty-states
 type: task
 status: open
 priority: medium
-phase: open
+phase: ready
 depends_on: [T-026-01]
 ---
 

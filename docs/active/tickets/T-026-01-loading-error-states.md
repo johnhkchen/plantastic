@@ -5,7 +5,7 @@ title: loading-error-states
 type: task
 status: open
 priority: medium
-phase: open
+phase: ready
 depends_on: [T-022-01]
 ---
 

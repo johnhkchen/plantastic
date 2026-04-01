@@ -5,7 +5,7 @@ title: tenant-isolation-scenario
 type: task
 status: open
 priority: high
-phase: open
+phase: ready
 depends_on: [T-022-01]
 ---
 

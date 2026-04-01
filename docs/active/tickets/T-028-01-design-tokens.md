@@ -5,7 +5,7 @@ title: design-tokens
 type: task
 status: open
 priority: low
-phase: open
+phase: ready
 depends_on: [T-026-01]
 ---
 

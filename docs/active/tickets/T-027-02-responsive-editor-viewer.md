@@ -5,7 +5,7 @@ title: responsive-editor-viewer
 type: task
 status: open
 priority: medium
-phase: open
+phase: ready
 depends_on: [T-027-01]
 ---
 
