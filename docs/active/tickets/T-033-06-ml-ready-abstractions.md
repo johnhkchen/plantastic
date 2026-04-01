@@ -5,7 +5,7 @@ title: ml-ready-abstractions
 type: task
 status: open
 priority: medium
-phase: ready
+phase: done
 depends_on: [T-033-04]
 ---
 

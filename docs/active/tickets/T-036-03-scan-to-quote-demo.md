@@ -5,7 +5,7 @@ title: scan-to-quote-demo
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: [T-036-02, T-032-03]
 ---
 

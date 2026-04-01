@@ -978,3 +978,101 @@ fn test_powell_market_gaps() {
         );
     }
 }
+
+#[test]
+fn test_powell_market_hdbscan() {
+    use pt_scan::cluster::hdbscan_cluster;
+    use pt_scan::eigenvalue::compute_point_features;
+    use pt_scan::HdbscanConfig;
+    use std::fs::File;
+    use std::io::BufReader;
+
+    let scan_path = "../../assets/scans/samples/Scan at 09.23.ply";
+    let file = match File::open(scan_path) {
+        Ok(f) => f,
+        Err(_) => {
+            eprintln!("Skipping Powell & Market HDBSCAN test: scan file not found at {scan_path}");
+            return;
+        }
+    };
+
+    // Use coarser voxel to keep obstacle count manageable for HDBSCAN's O(n²) MST.
+    let config = ScanConfig {
+        voxel_size: 0.1,
+        outlier_k: 20,
+        outlier_threshold: 2.0,
+        ransac_iterations: 1000,
+        ransac_threshold: 0.05,
+    };
+
+    let cloud = pt_scan::process_scan(BufReader::new(file), &config)
+        .expect("Powell & Market scan should process successfully");
+
+    // Use the full obstacle set (coarser voxel keeps it ~6K points).
+    // HDBSCAN's O(n²) is ~4s for 6K in debug, which is acceptable.
+    let obstacles = &cloud.obstacles;
+
+    eprintln!(
+        "Powell & Market HDBSCAN: {} obstacle points",
+        obstacles.len()
+    );
+
+    // Compute eigenvalue features
+    let feat_start = std::time::Instant::now();
+    let features = compute_point_features(obstacles, 20);
+    let feat_ms = feat_start.elapsed().as_millis();
+    eprintln!("Eigenvalue features computed in {feat_ms}ms");
+
+    // Run HDBSCAN
+    let hdbscan_config = HdbscanConfig {
+        min_cluster_size: 100,
+        min_samples: 10,
+        ..HdbscanConfig::default()
+    };
+    let cluster_start = std::time::Instant::now();
+    let result = hdbscan_cluster(obstacles, &features, &hdbscan_config);
+    let cluster_ms = cluster_start.elapsed().as_millis();
+
+    eprintln!("HDBSCAN clustering took {cluster_ms}ms");
+    eprintln!(
+        "Clusters: {}, noise points: {}",
+        result.clusters.len(),
+        result.noise_indices.len()
+    );
+    for c in &result.clusters {
+        eprintln!(
+            "  Cluster {}: {} points, centroid [{:.2}, {:.2}, {:.2}]",
+            c.id,
+            c.point_indices.len(),
+            c.centroid[0],
+            c.centroid[1],
+            c.centroid[2],
+        );
+    }
+
+    // HDBSCAN should produce 2-10 clusters (vs 12+ with DBSCAN default)
+    assert!(
+        result.clusters.len() >= 2,
+        "Powell & Market HDBSCAN should produce at least 2 clusters, got {}",
+        result.clusters.len()
+    );
+    assert!(
+        result.clusters.len() <= 10,
+        "Powell & Market HDBSCAN should produce at most 10 clusters, got {} (still over-segmenting?)",
+        result.clusters.len()
+    );
+
+    // The two largest clusters should be significant
+    let mut sorted = result.clusters.clone();
+    sorted.sort_by(|a, b| b.point_indices.len().cmp(&a.point_indices.len()));
+    assert!(
+        sorted[0].point_indices.len() >= 100,
+        "Largest HDBSCAN cluster too small: {} points",
+        sorted[0].point_indices.len()
+    );
+    assert!(
+        sorted[1].point_indices.len() >= 100,
+        "Second largest HDBSCAN cluster too small: {} points",
+        sorted[1].point_indices.len()
+    );
+}

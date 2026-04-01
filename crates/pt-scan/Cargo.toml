@@ -24,8 +24,14 @@ thiserror.workspace = true
 
 [dev-dependencies]
 approx = "0.5"
+geo.workspace = true
 pt-features = { path = "../pt-features" }
+pt-materials = { path = "../pt-materials" }
+pt-project = { path = "../pt-project" }
+pt-quote = { path = "../pt-quote" }
 pt-test-utils = { path = "../pt-test-utils" }
+rust_decimal.workspace = true
+rerun = "0.22"
 tokio = { version = "1", features = ["rt", "macros"] }
 
 [lints]

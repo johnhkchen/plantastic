@@ -72,7 +72,7 @@ test-integration:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "Running integration tests (requires Postgres)..."
-    DATABASE_URL="${DATABASE_URL:-postgres://plantastic:plantastic@localhost:5432/plantastic}" \
+    DATABASE_URL="${DATABASE_URL:-postgres://plantastic:plantastic@localhost:5433/plantastic}" \
         cargo test -p pt-repo --features integration 2>&1
     echo ""
     echo "Integration tests passed."
@@ -105,11 +105,46 @@ test-e2e:
 scenarios:
     @cargo run -p pt-scenarios 2>/dev/null
 
+# Run scenarios with Docker Compose Postgres (starts DB if needed)
+scenarios-db:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v docker &>/dev/null; then
+        echo "Docker not found. Install Docker to run DB-backed scenarios."
+        echo "Alternatively, set DATABASE_URL and run: just scenarios"
+        exit 1
+    fi
+    echo "Starting Postgres..."
+    docker compose up -d db
+    echo "Waiting for Postgres to be ready..."
+    for i in $(seq 1 30); do
+        if docker compose exec db pg_isready -U plantastic -d plantastic &>/dev/null; then
+            break
+        fi
+        if [ "$i" -eq 30 ]; then
+            echo "Postgres did not become ready in 30 attempts."
+            exit 1
+        fi
+        sleep 1
+    done
+    echo "Postgres ready."
+    echo ""
+    DATABASE_URL=postgres://plantastic:plantastic@localhost:5433/plantastic \
+        cargo run -p pt-scenarios 2>/dev/null
+
 # ─── Scan Processing ───────────────────────────────────
 
 # Process a PLY scan through the full pipeline (release mode for realistic timing)
 process-scan path="assets/scans/samples/Scan at 09.23.ply":
     cargo run -p pt-scan --example process_sample --release -- "{{path}}"
+
+# Run the full scan-to-quote demo: PLY → detect → measure → three-tier quote
+scan-to-quote path="assets/scans/samples/powell-market-downsampled.ply":
+    cargo run -p pt-scan --example scan_to_quote --release -- "{{path}}"
+
+# Debug segmentation with Rerun 3D viewer (opens viewer automatically)
+debug-scan path="assets/scans/samples/powell-market-downsampled.ply":
+    cargo run -p pt-scan --example debug_segmentation --release -- "{{path}}"
 
 # Process a PLY scan and print instructions to view in the 3D viewer
 scan-to-viewer path="assets/scans/samples/Scan at 09.23.ply":
@@ -153,7 +188,7 @@ dev-db:
     docker compose up -d --wait
     echo ""
     echo "Services healthy."
-    echo "  DATABASE_URL=postgres://plantastic:plantastic@localhost:5432/plantastic"
+    echo "  DATABASE_URL=postgres://plantastic:plantastic@localhost:5433/plantastic"
     echo "  VALKEY_URL=redis://localhost:6379"
 
 # Start infra + print commands for API / web / worker
@@ -181,7 +216,7 @@ dev-reset:
     docker compose up -d --wait
     echo ""
     echo "Clean slate ready."
-    echo "  DATABASE_URL=postgres://plantastic:plantastic@localhost:5432/plantastic"
+    echo "  DATABASE_URL=postgres://plantastic:plantastic@localhost:5433/plantastic"
     echo "  VALKEY_URL=redis://localhost:6379"
 
 # ─── Database ───────────────────────────────────────────────────

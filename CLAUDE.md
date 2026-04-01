@@ -15,6 +15,7 @@ Quality gate: `just check` (format + lint + test + scenarios)
 just check       # Full pre-commit gate — run before marking any ticket done
 just test        # Workspace tests with 60s binary timeout
 just scenarios   # Value delivery dashboard (the number that matters)
+just scenarios-db # Scenarios with Docker Compose Postgres (starts DB if needed)
 just lint        # Clippy strict — warnings are errors
 just fmt         # Auto-format
 just status      # Lisa ticket DAG

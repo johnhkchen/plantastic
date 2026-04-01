@@ -5,7 +5,7 @@ title: fix-tenant-isolation
 type: task
 status: open
 priority: critical
-phase: ready
+phase: done
 depends_on: []
 ---
 

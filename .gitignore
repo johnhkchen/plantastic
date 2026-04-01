@@ -38,3 +38,6 @@ assets/scans/samples/Scan at 09.23.ply
 assets/scans/samples/*-terrain.glb
 assets/scans/samples/*-planview.png
 assets/scans/samples/*-report.json
+
+# Classification training data logs (opt-in, local only)
+data/classification_log/

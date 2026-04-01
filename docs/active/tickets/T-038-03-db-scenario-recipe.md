@@ -5,7 +5,7 @@ title: db-scenario-recipe
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: [T-038-01, T-038-02]
 ---
 

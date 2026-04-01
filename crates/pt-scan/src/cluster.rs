@@ -1,12 +1,18 @@
-//! DBSCAN clustering for obstacle point clouds.
+//! Clustering for obstacle point clouds.
 //!
 //! Groups spatially proximate obstacle points into distinct clusters using
-//! Density-Based Spatial Clustering of Applications with Noise (DBSCAN).
-//! Each cluster becomes a candidate for downstream feature classification.
+//! DBSCAN or HDBSCAN. Each cluster becomes a candidate for downstream
+//! feature classification.
+//!
+//! DBSCAN uses a fixed epsilon radius. HDBSCAN evaluates cluster stability
+//! across all epsilon values and supports augmented feature spaces (spatial +
+//! eigenvalue features) for better separation of geometrically distinct objects.
 
+use hdbscan::{Hdbscan, HdbscanHyperParams};
 use kiddo::ImmutableKdTree;
 use serde::{Deserialize, Serialize};
 
+use crate::eigenvalue::PointFeatures;
 use crate::types::{BoundingBox, Point};
 
 /// Configuration for DBSCAN clustering.
@@ -138,6 +144,190 @@ pub fn cluster_obstacles(points: &[Point], config: &ClusterConfig) -> ClusterRes
             let centroid = compute_centroid(&member_positions);
             let bbox = BoundingBox::from_positions(&member_positions)
                 .expect("cluster has at least min_points members");
+
+            #[allow(clippy::cast_possible_truncation)]
+            Cluster {
+                id: id as u32,
+                point_indices: indices,
+                centroid,
+                bbox,
+            }
+        })
+        .collect();
+
+    ClusterResult {
+        clusters,
+        noise_indices,
+    }
+}
+
+/// Configuration for HDBSCAN clustering in augmented feature space.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HdbscanConfig {
+    /// Minimum number of points for a group to be considered a cluster.
+    pub min_cluster_size: usize,
+    /// Number of neighbors used to compute core distances.
+    pub min_samples: usize,
+    /// Weight applied to normalized spatial coordinates relative to eigenvalue
+    /// features. 1.0 = equal weight, >1.0 = more spatial influence.
+    pub spatial_weight: f64,
+}
+
+impl Default for HdbscanConfig {
+    fn default() -> Self {
+        Self {
+            min_cluster_size: 200,
+            min_samples: 10,
+            spatial_weight: 1.0,
+        }
+    }
+}
+
+/// Cluster obstacle points using HDBSCAN in an augmented feature space.
+///
+/// Builds 6D feature vectors `[x, y, z, planarity, linearity, sphericity]`
+/// where spatial coordinates are min-max normalized and weighted by
+/// `config.spatial_weight`. HDBSCAN extracts the most stable clusters from
+/// the density hierarchy, eliminating the need for a fixed epsilon.
+///
+/// # Panics
+///
+/// Panics if `points.len() != features.len()`.
+pub fn hdbscan_cluster(
+    points: &[Point],
+    features: &[PointFeatures],
+    config: &HdbscanConfig,
+) -> ClusterResult {
+    assert_eq!(
+        points.len(),
+        features.len(),
+        "points and features must have the same length"
+    );
+
+    if points.is_empty() {
+        return ClusterResult {
+            clusters: Vec::new(),
+            noise_indices: Vec::new(),
+        };
+    }
+
+    // If fewer points than min_cluster_size, everything is noise
+    if points.len() < config.min_cluster_size {
+        return ClusterResult {
+            clusters: Vec::new(),
+            noise_indices: (0..points.len()).collect(),
+        };
+    }
+
+    let data = build_feature_vectors(points, features, config.spatial_weight);
+
+    // Clamp min_samples to data length to avoid out-of-bounds in the crate
+    let min_samples = config
+        .min_samples
+        .min(points.len().saturating_sub(1))
+        .max(1);
+
+    let hyper_params = HdbscanHyperParams::builder()
+        .min_cluster_size(config.min_cluster_size)
+        .min_samples(min_samples)
+        .build();
+
+    let clusterer = Hdbscan::new(&data, hyper_params);
+    match clusterer.cluster() {
+        Ok(labels) => labels_to_cluster_result(&labels, points),
+        Err(_) => {
+            // Graceful fallback: treat all points as noise
+            ClusterResult {
+                clusters: Vec::new(),
+                noise_indices: (0..points.len()).collect(),
+            }
+        }
+    }
+}
+
+/// Build normalized 6D feature vectors for HDBSCAN.
+///
+/// Dimensions: [x_norm * w, y_norm * w, z_norm * w, planarity, linearity, sphericity]
+/// where spatial coords are min-max normalized to [0, 1].
+fn build_feature_vectors(
+    points: &[Point],
+    features: &[PointFeatures],
+    spatial_weight: f64,
+) -> Vec<Vec<f64>> {
+    // Compute spatial min/max for normalization
+    let mut min = [f64::MAX; 3];
+    let mut max = [f64::MIN; 3];
+    for p in points {
+        for d in 0..3 {
+            let v = f64::from(p.position[d]);
+            if v < min[d] {
+                min[d] = v;
+            }
+            if v > max[d] {
+                max[d] = v;
+            }
+        }
+    }
+
+    let range: [f64; 3] = [
+        (max[0] - min[0]).max(1e-10),
+        (max[1] - min[1]).max(1e-10),
+        (max[2] - min[2]).max(1e-10),
+    ];
+
+    points
+        .iter()
+        .zip(features.iter())
+        .map(|(p, f)| {
+            vec![
+                (f64::from(p.position[0]) - min[0]) / range[0] * spatial_weight,
+                (f64::from(p.position[1]) - min[1]) / range[1] * spatial_weight,
+                (f64::from(p.position[2]) - min[2]) / range[2] * spatial_weight,
+                f64::from(f.planarity),
+                f64::from(f.linearity),
+                f64::from(f.sphericity),
+            ]
+        })
+        .collect()
+}
+
+/// Convert HDBSCAN labels (-1 = noise, 0+ = cluster id) to `ClusterResult`.
+fn labels_to_cluster_result(labels: &[i32], points: &[Point]) -> ClusterResult {
+    // Find max label to size the cluster_points vec
+    let max_label = labels.iter().copied().max().unwrap_or(-1);
+
+    if max_label < 0 {
+        // All noise
+        return ClusterResult {
+            clusters: Vec::new(),
+            noise_indices: (0..points.len()).collect(),
+        };
+    }
+
+    #[allow(clippy::cast_sign_loss)]
+    let num_clusters = (max_label + 1) as usize;
+    let mut cluster_points: Vec<Vec<usize>> = vec![Vec::new(); num_clusters];
+    let mut noise_indices = Vec::new();
+
+    for (i, &label) in labels.iter().enumerate() {
+        if label < 0 {
+            noise_indices.push(i);
+        } else {
+            #[allow(clippy::cast_sign_loss)]
+            cluster_points[label as usize].push(i);
+        }
+    }
+
+    let clusters = cluster_points
+        .into_iter()
+        .enumerate()
+        .filter(|(_, indices)| !indices.is_empty())
+        .map(|(id, indices)| {
+            let member_positions: Vec<[f32; 3]> =
+                indices.iter().map(|&i| points[i].position).collect();
+            let centroid = compute_centroid(&member_positions);
+            let bbox = BoundingBox::from_positions(&member_positions)
+                .expect("cluster has at least one member");
 
             #[allow(clippy::cast_possible_truncation)]
             Cluster {
@@ -357,6 +547,214 @@ mod tests {
             assert!((c.bbox.max[0] - 1.5).abs() < 0.01);
             assert!((c.bbox.min[2] - 2.5).abs() < 0.01);
             assert!((c.bbox.max[2] - 3.5).abs() < 0.01);
+        });
+    }
+
+    // --- HDBSCAN tests ---
+
+    fn uniform_features() -> PointFeatures {
+        PointFeatures {
+            planarity: 0.33,
+            linearity: 0.33,
+            sphericity: 0.33,
+            omnivariance: 0.1,
+            normal: [0.0, 0.0, 1.0],
+            curvature: 0.1,
+        }
+    }
+
+    fn planar_features() -> PointFeatures {
+        PointFeatures {
+            planarity: 0.9,
+            linearity: 0.05,
+            sphericity: 0.05,
+            omnivariance: 0.01,
+            normal: [0.0, 0.0, 1.0],
+            curvature: 0.01,
+        }
+    }
+
+    fn spherical_features() -> PointFeatures {
+        PointFeatures {
+            planarity: 0.05,
+            linearity: 0.05,
+            sphericity: 0.9,
+            omnivariance: 0.5,
+            normal: [0.0, 0.0, 1.0],
+            curvature: 0.3,
+        }
+    }
+
+    #[test]
+    fn test_hdbscan_two_separated_clusters() {
+        timed(|| {
+            let mut points = make_blob([0.0, 0.0, 0.0], 200, 0.5);
+            points.extend(make_blob([10.0, 10.0, 10.0], 200, 0.5));
+
+            let features: Vec<PointFeatures> = points.iter().map(|_| uniform_features()).collect();
+
+            let config = HdbscanConfig {
+                min_cluster_size: 20,
+                min_samples: 5,
+                spatial_weight: 1.0,
+            };
+            let result = hdbscan_cluster(&points, &features, &config);
+
+            assert_eq!(
+                result.clusters.len(),
+                2,
+                "expected 2 clusters, got {}",
+                result.clusters.len()
+            );
+
+            for c in &result.clusters {
+                assert!(
+                    c.point_indices.len() >= 150,
+                    "cluster {} has only {} points",
+                    c.id,
+                    c.point_indices.len()
+                );
+            }
+        });
+    }
+
+    #[test]
+    fn test_hdbscan_noise_not_merged() {
+        timed(|| {
+            let mut points = make_blob([0.0, 0.0, 0.0], 200, 0.5);
+            points.extend(make_blob([10.0, 10.0, 10.0], 200, 0.5));
+
+            // Add isolated noise points far from both clusters, each far apart
+            for i in 0..5 {
+                points.push(Point {
+                    position: [50.0 + i as f32 * 20.0, 50.0, 50.0],
+                    color: None,
+                });
+            }
+
+            let features: Vec<PointFeatures> = points.iter().map(|_| uniform_features()).collect();
+
+            let config = HdbscanConfig {
+                min_cluster_size: 20,
+                min_samples: 5,
+                spatial_weight: 1.0,
+            };
+            let result = hdbscan_cluster(&points, &features, &config);
+
+            // Should still have 2 main clusters
+            assert!(
+                result.clusters.len() >= 2,
+                "expected >=2 clusters, got {}",
+                result.clusters.len()
+            );
+
+            // Total assigned points should not include all 405 — some must be noise
+            let assigned: usize = result.clusters.iter().map(|c| c.point_indices.len()).sum();
+            assert!(
+                assigned < points.len(),
+                "expected some noise points, but all {} points were assigned",
+                points.len()
+            );
+        });
+    }
+
+    #[test]
+    fn test_hdbscan_uniform_blob_no_crash() {
+        timed(|| {
+            // A single uniform-density blob may produce 0 clusters (all noise) or
+            // a few sub-clusters depending on the grid structure. HDBSCAN needs
+            // density contrast to form stable clusters. This test verifies graceful
+            // handling, not a specific cluster count.
+            let points = make_blob([0.0, 0.0, 0.0], 400, 0.5);
+            let features: Vec<PointFeatures> = points.iter().map(|_| uniform_features()).collect();
+
+            let config = HdbscanConfig {
+                min_cluster_size: 50,
+                min_samples: 10,
+                spatial_weight: 1.0,
+            };
+            let result = hdbscan_cluster(&points, &features, &config);
+
+            // Total should equal input size (assigned + noise)
+            let assigned: usize = result.clusters.iter().map(|c| c.point_indices.len()).sum();
+            assert_eq!(
+                assigned + result.noise_indices.len(),
+                400,
+                "all points must be accounted for"
+            );
+        });
+    }
+
+    #[test]
+    fn test_hdbscan_empty_input() {
+        timed(|| {
+            let config = HdbscanConfig::default();
+            let result = hdbscan_cluster(&[], &[], &config);
+
+            assert!(result.clusters.is_empty());
+            assert!(result.noise_indices.is_empty());
+        });
+    }
+
+    #[test]
+    fn test_hdbscan_feature_separation() {
+        timed(|| {
+            // Two groups at the SAME spatial position but with different features.
+            // Group A: planar features, Group B: spherical features.
+            // With spatial_weight=0 (features only), HDBSCAN should separate them.
+            let blob = make_blob([0.0, 0.0, 0.0], 200, 0.5);
+            let mut points = blob.clone();
+            points.extend(blob);
+
+            let mut features = Vec::with_capacity(400);
+            for _ in 0..200 {
+                features.push(planar_features());
+            }
+            for _ in 0..200 {
+                features.push(spherical_features());
+            }
+
+            let config = HdbscanConfig {
+                min_cluster_size: 20,
+                min_samples: 5,
+                spatial_weight: 0.0, // features only
+            };
+            let result = hdbscan_cluster(&points, &features, &config);
+
+            assert_eq!(
+                result.clusters.len(),
+                2,
+                "expected 2 clusters from feature separation, got {}",
+                result.clusters.len()
+            );
+        });
+    }
+
+    #[test]
+    fn test_hdbscan_all_noise_fallback() {
+        timed(|| {
+            // 3 scattered points, min_cluster_size=100 — nothing can form a cluster
+            let points: Vec<Point> = (0..3)
+                .map(|i| Point {
+                    position: [i as f32 * 100.0, 0.0, 0.0],
+                    color: None,
+                })
+                .collect();
+            let features: Vec<PointFeatures> = points.iter().map(|_| uniform_features()).collect();
+
+            let config = HdbscanConfig {
+                min_cluster_size: 100,
+                min_samples: 5,
+                spatial_weight: 1.0,
+            };
+            let result = hdbscan_cluster(&points, &features, &config);
+
+            assert!(
+                result.clusters.is_empty(),
+                "expected 0 clusters, got {}",
+                result.clusters.len()
+            );
+            assert_eq!(result.noise_indices.len(), 3);
         });
     }
 }

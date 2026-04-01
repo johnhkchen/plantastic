@@ -12,8 +12,10 @@ pub mod export;
 pub mod feature;
 pub mod filter;
 pub mod gap;
+pub mod logging;
 pub mod mesh;
 pub mod parser;
+pub mod pipeline;
 pub mod ransac;
 pub mod report;
 pub mod types;
@@ -22,13 +24,19 @@ pub use annotate::{
     annotate_plan_view_png, category_color, feature_annotation, AnnotationConfig,
     ClassifiedFeatureRef, FeatureAnnotation,
 };
-pub use cluster::{Cluster, ClusterConfig, ClusterResult};
+pub use cluster::{hdbscan_cluster, Cluster, ClusterConfig, ClusterResult, HdbscanConfig};
 pub use eigenvalue::{compute_point_features, PointFeatures};
 pub use error::ScanError;
 pub use export::{generate_terrain, ExportConfig, TerrainMetadata, TerrainOutput};
 pub use feature::{extract_candidates, FeatureCandidate};
 pub use gap::{measure_gaps, Gap, GapConfig};
+pub use logging::ClassificationLogger;
 pub use mesh::{MeshConfig, TerrainMesh};
+pub use pipeline::{
+    ClassifiedFeatureOutput, EigenvalueExtractor, FeatureClusterer, FeatureVector,
+    HdbscanClusterer, PipelineClassifier, PipelineError, PipelineResult, PointFeatureExtractor,
+    ScanPipeline,
+};
 pub use report::{
     GroundInfo, InputInfo, ObstacleInfo, OutputInfo, ProcessingInfo, ScanReport, StageTiming,
 };

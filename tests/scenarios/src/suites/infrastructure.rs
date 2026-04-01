@@ -72,7 +72,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::CREATED {
         return ScenarioOutcome::Fail(format!(
-            "Step 1: POST /projects: expected 201, got {status}"
+            "Step 1: POST /projects: expected 201, got {status}: {body}"
         ));
     }
     let project_id = match body["id"].as_str() {
@@ -95,7 +95,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::OK {
         return ScenarioOutcome::Fail(format!(
-            "Step 2: GET /projects/{project_id}: expected 200, got {status}"
+            "Step 2: GET /projects/{project_id}: expected 200, got {status}: {body}"
         ));
     }
     if body["client_name"].as_str() != Some("Round-Trip Test") {
@@ -128,7 +128,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::CREATED {
         return ScenarioOutcome::Fail(format!(
-            "Step 3: POST /projects/{project_id}/zones: expected 201, got {status}"
+            "Step 3: POST /projects/{project_id}/zones: expected 201, got {status}: {body}"
         ));
     }
     let zone_id = match body["id"].as_str() {
@@ -151,7 +151,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::OK {
         return ScenarioOutcome::Fail(format!(
-            "Step 4: GET /projects/{project_id}/zones: expected 200, got {status}"
+            "Step 4: GET /projects/{project_id}/zones: expected 200, got {status}: {body}"
         ));
     }
     let zones = match body.as_array() {
@@ -183,7 +183,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::CREATED {
         return ScenarioOutcome::Fail(format!(
-            "Step 5: POST /materials: expected 201, got {status}"
+            "Step 5: POST /materials: expected 201, got {status}: {body}"
         ));
     }
     let material_id = match body["id"].as_str() {
@@ -192,7 +192,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
 
     // ── Step 6: PUT /projects/:id/tiers/good (assign material → zone) ──
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::PUT,
         &format!("/projects/{project_id}/tiers/good"),
@@ -210,7 +210,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::NO_CONTENT {
         return ScenarioOutcome::Fail(format!(
-            "Step 6: PUT /projects/{project_id}/tiers/good: expected 204, got {status}"
+            "Step 6: PUT /projects/{project_id}/tiers/good: expected 204, got {status}: {body}"
         ));
     }
 
@@ -231,7 +231,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::OK {
         return ScenarioOutcome::Fail(format!(
-            "Step 7: GET /projects/{project_id}/quote/good: expected 200, got {status}"
+            "Step 7: GET /projects/{project_id}/quote/good: expected 200, got {status}: {quote}"
         ));
     }
     let line_items = match quote["line_items"].as_array() {
@@ -259,7 +259,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     }
 
     // ── Step 8: DELETE /projects/:id → 200 ──────────────────────
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::DELETE,
         &format!("/projects/{project_id}"),
@@ -274,12 +274,12 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     // 200 or 204 are both valid for DELETE
     if status != StatusCode::OK && status != StatusCode::NO_CONTENT {
         return ScenarioOutcome::Fail(format!(
-            "Step 8: DELETE /projects/{project_id}: expected 200/204, got {status}"
+            "Step 8: DELETE /projects/{project_id}: expected 200/204, got {status}: {body}"
         ));
     }
 
     // ── Step 9: GET /projects/:id → 404 ─────────────────────────
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::GET,
         &format!("/projects/{project_id}"),
@@ -293,7 +293,7 @@ async fn s_infra_1_api() -> ScenarioOutcome {
     };
     if status != StatusCode::NOT_FOUND {
         return ScenarioOutcome::Fail(format!(
-            "Step 9: GET /projects/{project_id} after delete: expected 404, got {status}"
+            "Step 9: GET /projects/{project_id} after delete: expected 404, got {status}: {body}"
         ));
     }
 
@@ -353,7 +353,7 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
     if status != StatusCode::CREATED {
         return ScenarioOutcome::Fail(format!(
-            "POST /projects as Tenant A: expected 201, got {status}"
+            "POST /projects as Tenant A: expected 201, got {status}: {body}"
         ));
     }
     let project_id = match body["id"].as_str() {
@@ -362,7 +362,7 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
 
     // ── Step 2: Tenant B fetches project → 404 ──────────────────
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::GET,
         &format!("/projects/{project_id}"),
@@ -376,7 +376,7 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
     if status != StatusCode::NOT_FOUND {
         return ScenarioOutcome::Fail(format!(
-            "GET /projects/{project_id} as Tenant B: expected 404, got {status} (existence leak!)"
+            "GET /projects/{project_id} as Tenant B: expected 404, got {status}: {body} (existence leak!)"
         ));
     }
 
@@ -401,7 +401,7 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
     if status != StatusCode::CREATED {
         return ScenarioOutcome::Fail(format!(
-            "POST /materials as Tenant A: expected 201, got {status}"
+            "POST /materials as Tenant A: expected 201, got {status}: {mat_body}"
         ));
     }
     let material_id = match mat_body["id"].as_str() {
@@ -417,7 +417,7 @@ async fn s_infra_2_api() -> ScenarioOutcome {
         };
     if status != StatusCode::OK {
         return ScenarioOutcome::Fail(format!(
-            "GET /materials as Tenant B: expected 200, got {status}"
+            "GET /materials as Tenant B: expected 200, got {status}: {materials}"
         ));
     }
     if let Some(arr) = materials.as_array() {
@@ -433,14 +433,14 @@ async fn s_infra_2_api() -> ScenarioOutcome {
         "type": "Polygon",
         "coordinates": [[[0.0, 0.0], [3.0, 0.0], [3.0, 4.0], [0.0, 4.0], [0.0, 0.0]]]
     });
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::POST,
         &format!("/projects/{project_id}/zones"),
         tenant_a,
         Some(json!({
             "geometry": zone_geojson,
-            "zone_type": "Patio",
+            "zone_type": "patio",
             "label": "Test Patio"
         })),
     )
@@ -451,19 +451,19 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
     if status != StatusCode::CREATED {
         return ScenarioOutcome::Fail(format!(
-            "POST /projects/{project_id}/zones as Tenant A: expected 201, got {status}"
+            "POST /projects/{project_id}/zones as Tenant A: expected 201, got {status}: {body}"
         ));
     }
 
     // ── Step 6: Tenant B creates zone on A's project → 404 ─────
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::POST,
         &format!("/projects/{project_id}/zones"),
         tenant_b,
         Some(json!({
             "geometry": zone_geojson,
-            "zone_type": "Bed",
+            "zone_type": "bed",
             "label": "Intruder Zone"
         })),
     )
@@ -474,12 +474,12 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
     if status != StatusCode::NOT_FOUND {
         return ScenarioOutcome::Fail(format!(
-            "POST /projects/{project_id}/zones as Tenant B: expected 404, got {status} (isolation breach!)"
+            "POST /projects/{project_id}/zones as Tenant B: expected 404, got {status}: {body} (isolation breach!)"
         ));
     }
 
     // ── Step 7: Tenant B assigns tier on A's project → 404 ─────
-    let (status, _) = match api_helpers::api_call(
+    let (status, body) = match api_helpers::api_call(
         &app,
         Method::PUT,
         &format!("/projects/{project_id}/tiers/good"),
@@ -493,7 +493,7 @@ async fn s_infra_2_api() -> ScenarioOutcome {
     };
     if status != StatusCode::NOT_FOUND {
         return ScenarioOutcome::Fail(format!(
-            "PUT /projects/{project_id}/tiers/good as Tenant B: expected 404, got {status} (isolation breach!)"
+            "PUT /projects/{project_id}/tiers/good as Tenant B: expected 404, got {status}: {body} (isolation breach!)"
         ));
     }
 
