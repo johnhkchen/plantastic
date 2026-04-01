@@ -370,7 +370,7 @@ fn to_plan_view_png(
 
 /// Map world coordinates to pixel coordinates.
 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-fn world_to_pixel(x: f32, y: f32, bbox: &BoundingBox, img_w: u32, img_h: u32) -> (f32, f32) {
+pub(crate) fn world_to_pixel(x: f32, y: f32, bbox: &BoundingBox, img_w: u32, img_h: u32) -> (f32, f32) {
     let nx = (x - bbox.min[0]) / (bbox.max[0] - bbox.min[0]);
     let ny = (y - bbox.min[1]) / (bbox.max[1] - bbox.min[1]);
     let px = nx * (img_w.saturating_sub(1)) as f32;

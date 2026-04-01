@@ -5,7 +5,7 @@ title: baml-planter-estimation
 type: task
 status: open
 priority: high
-phase: research
+phase: implement
 depends_on: [T-036-01, T-034-01]
 ---
 

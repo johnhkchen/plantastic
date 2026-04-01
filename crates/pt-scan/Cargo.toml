@@ -6,8 +6,10 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+ab_glyph = "0.2"
 delaunator = "1"
 image = { version = "0.25", default-features = false, features = ["png"] }
+imageproc = "0.25"
 indexmap = "2"
 kiddo = "5"
 meshopt = "0.4"
@@ -20,7 +22,9 @@ thiserror.workspace = true
 
 [dev-dependencies]
 approx = "0.5"
+pt-features = { path = "../pt-features" }
 pt-test-utils = { path = "../pt-test-utils" }
+tokio = { version = "1", features = ["rt", "macros"] }
 
 [lints]
 workspace = true
