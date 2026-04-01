@@ -5,7 +5,7 @@ title: scan-cli-example
 type: task
 status: open
 priority: high
-phase: research
+phase: implement
 depends_on: []
 ---
 

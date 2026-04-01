@@ -43,12 +43,30 @@ PLY file
   → Bevy viewer                      [existing, loads glTF via postMessage]
 ```
 
+## Proof Scenario: Urban Planter Between Two Trees
+
+A landscaper is asked: "put planters between these two trees on Market Street." With Plantastic:
+
+1. **Scan** the site with iPhone LiDAR (done — we have the PLY)
+2. **Detect** the two trunks and measure the space between them
+3. **Classify** the features (BAML: "two tree trunks, ~6ft apart, brick paving between")
+4. **Draw zone** in the measured gap (zone editor on plan view, or BAML-suggested)
+5. **Estimate** for three planter styles:
+   - Ornamental grasses: 15 plants, 2.5 cu yd soil, $1,800
+   - Seasonal color: 40 plants, 3.0 cu yd soil, $2,400
+   - Low-maintenance succulents: 25 plants, 2.0 cu yd soil, $1,200
+6. **Quote** with three tiers (Good/Better/Best) and send PDF
+7. **Preview** in 3D viewer (planters rendered between the trunks)
+
+This exercises scan → measure → design → quote → export — the entire product, starting from a deliberately minimal scan. If it works for two trunks and brick, it works for a full backyard.
+
 ## Stories
 
 - S-032: Scan Processing CLI & Sample Pipeline
 - S-033: Geometric Feature Clustering
 - S-034: BAML Feature Classification
 - S-035: Multimodal Plan-View Analysis
+- S-036: BAML Planter Estimation (scan gap → zone suggestion → material/plant estimate)
 
 ## Success Criteria
 
