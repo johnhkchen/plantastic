@@ -5,7 +5,7 @@ title: annotated-plan-view
 type: task
 status: open
 priority: medium
-phase: ready
+phase: structure
 depends_on: [T-034-01]
 ---
 

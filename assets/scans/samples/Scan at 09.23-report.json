@@ -10,51 +10,51 @@
     "downsampled_count": 122694,
     "outliers_removed": 3866,
     "ransac_iterations_config": 1000,
-    "ransac_best_iteration": 470
+    "ransac_best_iteration": 945
   },
   "ground": {
     "plane": {
       "normal": [
-        0.010487693,
-        0.9996638,
-        -0.023714418
+        -0.009476391,
+        -0.9997224,
+        0.021564893
       ],
-      "d": 1.3545711
+      "d": -1.3598291
     },
-    "point_count": 89165,
-    "area_estimate_sqm": 5.165794
+    "point_count": 89014,
+    "area_estimate_sqm": 4.809102
   },
   "obstacles": {
-    "count": 29663,
+    "count": 29814,
     "height_range": [
-      0.05000043,
-      2.6892638
+      0.050001264,
+      2.6917396
     ],
     "bbox": {
       "min": [
-        -6.65508,
+        -6.6859765,
         -1.8709974,
         -11.325317
       ],
       "max": [
-        5.876551,
+        5.74545,
         1.3044708,
-        3.6360998
+        3.5258803
       ]
     }
   },
   "timing": {
-    "parse_ms": 48084,
-    "downsample_ms": 382,
-    "outlier_removal_ms": 384,
-    "ransac_ms": 34,
-    "total_processing_ms": 48886,
-    "terrain_export_ms": 60
+    "parse_ms": 18265,
+    "downsample_ms": 353,
+    "outlier_removal_ms": 366,
+    "ransac_ms": 31,
+    "total_processing_ms": 19017,
+    "terrain_export_ms": 67
   },
   "output": {
-    "glb_size_bytes": 1301432,
-    "png_size_bytes": 8512,
-    "triangle_count": 49998,
-    "vertex_count": 25015
+    "glb_size_bytes": 1301340,
+    "png_size_bytes": 9009,
+    "triangle_count": 49995,
+    "vertex_count": 25013
   }
 }

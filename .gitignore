@@ -31,7 +31,10 @@ node_modules/
 # Lambda build staging
 target/lambda/
 
-# Large scan files (commit small samples only, >50MB use S3)
-assets/scans/samples/*.ply
-assets/scans/samples/*.glb
-assets/scans/samples/*.png
+# Scan files — commit crops/fixtures, ignore full scans and artifacts
+# The cropped PLY (~11MB) is committed as a fast test fixture
+# The full scan (294MB) is gitignored — use S3 or local copy
+assets/scans/samples/Scan at 09.23.ply
+assets/scans/samples/*-terrain.glb
+assets/scans/samples/*-planview.png
+assets/scans/samples/*-report.json

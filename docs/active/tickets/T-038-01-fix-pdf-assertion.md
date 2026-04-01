@@ -5,7 +5,7 @@ title: fix-pdf-assertion
 type: task
 status: open
 priority: critical
-phase: research
+phase: done
 depends_on: []
 ---
 
