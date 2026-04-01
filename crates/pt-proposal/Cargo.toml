@@ -8,13 +8,21 @@ rust-version.workspace = true
 [dependencies]
 async-trait.workspace = true
 baml.workspace = true
+rust_decimal.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
+typst-as-lib.workspace = true
+
+[dependencies.pt-materials]
+path = "../pt-materials"
+
+[dependencies.pt-quote]
+path = "../pt-quote"
 
 [dev-dependencies]
 pt-test-utils = { path = "../pt-test-utils" }
-serde_json.workspace = true
 
 [[example]]
 name = "test_proposal"

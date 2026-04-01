@@ -1,0 +1,24 @@
+[package]
+name = "pt-scene"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+earcutr = "0.4"
+pt-geo = { path = "../pt-geo" }
+pt-materials = { path = "../pt-materials" }
+pt-project = { path = "../pt-project" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+approx = "0.5"
+pt-test-utils = { path = "../pt-test-utils" }
+rust_decimal = { workspace = true }
+uuid = { workspace = true }
+
+[lints]
+workspace = true

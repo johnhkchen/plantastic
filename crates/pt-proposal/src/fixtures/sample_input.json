@@ -1,0 +1,61 @@
+{
+  "company_name": "Bay Area Landscapes",
+  "project_name": "Johnson Backyard Refresh",
+  "project_address": "1234 Oak Ave, San Francisco, CA",
+  "tiers": [
+    {
+      "tier_level": "Good",
+      "total": "$4,230.00",
+      "zones": [
+        {
+          "label": "Main Patio",
+          "zone_type": "patio",
+          "area_sqft": 180.0,
+          "materials": ["Concrete Pavers"]
+        },
+        {
+          "label": "Front Bed",
+          "zone_type": "bed",
+          "area_sqft": 160.0,
+          "materials": ["Standard Mulch"]
+        }
+      ]
+    },
+    {
+      "tier_level": "Better",
+      "total": "$6,890.00",
+      "zones": [
+        {
+          "label": "Main Patio",
+          "zone_type": "patio",
+          "area_sqft": 180.0,
+          "materials": ["Travertine Pavers"]
+        },
+        {
+          "label": "Front Bed",
+          "zone_type": "bed",
+          "area_sqft": 160.0,
+          "materials": ["Premium Mulch", "Steel Edging"]
+        }
+      ]
+    },
+    {
+      "tier_level": "Best",
+      "total": "$11,450.00",
+      "zones": [
+        {
+          "label": "Main Patio",
+          "zone_type": "patio",
+          "area_sqft": 180.0,
+          "materials": ["Flagstone"]
+        },
+        {
+          "label": "Front Bed",
+          "zone_type": "bed",
+          "area_sqft": 160.0,
+          "materials": ["Cedar Bark", "Corten Steel Edging", "Landscape Lighting"]
+        }
+      ]
+    }
+  ]
+}

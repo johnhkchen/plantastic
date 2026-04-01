@@ -1,0 +1,43 @@
+{
+  "intro_paragraph": "Thank you for inviting Bay Area Landscapes to your home at 1234 Oak Ave. We enjoyed walking the property and discussing your vision for the Johnson Backyard Refresh. Below you'll find three thoughtfully designed options—Good, Better, and Best—so you can choose the level of finish and detail that feels right for your family and your budget.",
+  "tier_narratives": [
+    {
+      "tier_level": "Good",
+      "headline": "Clean & Classic",
+      "description": "This option delivers a fresh, polished look with durable concrete pavers for your main patio and standard mulch to revitalize the front bed. It's a practical foundation that immediately elevates your outdoor space. Total investment: $4,230.00.",
+      "differentiators": [
+        "Concrete pavers offer long-lasting durability with minimal maintenance",
+        "Standard mulch suppresses weeds and retains moisture for healthier plantings"
+      ]
+    },
+    {
+      "tier_level": "Better",
+      "headline": "Refined & Elevated",
+      "description": "Step up to travertine pavers on the patio for a naturally elegant surface that stays cool underfoot, paired with premium mulch and crisp steel edging along the front bed. These upgrades add a designer-level polish that you'll notice every time you step outside. Total investment: $6,890.00.",
+      "differentiators": [
+        "Travertine pavers bring natural stone beauty with superior heat resistance",
+        "Steel edging creates clean, lasting separation between bed and hardscape"
+      ]
+    },
+    {
+      "tier_level": "Best",
+      "headline": "The Full Transformation",
+      "description": "Our top-tier design features hand-laid flagstone on the patio for a one-of-a-kind artisan finish, plus cedar bark, corten steel edging, and integrated landscape lighting in the front bed. This is the version that turns your backyard into a true outdoor living space—stunning by day and warmly lit at night. Total investment: $11,450.00.",
+      "differentiators": [
+        "Flagstone delivers an organic, timeless aesthetic with each piece uniquely placed",
+        "Landscape lighting and corten steel edging add dramatic curb appeal after sunset"
+      ]
+    }
+  ],
+  "zone_callouts": [
+    {
+      "zone_label": "Main Patio",
+      "note": "At 180 square feet, your patio is the centerpiece of the project. Each tier upgrades the surface material—from concrete pavers to travertine to flagstone—so this zone sees the most dramatic transformation as you move up."
+    },
+    {
+      "zone_label": "Front Bed",
+      "note": "The 160-square-foot front bed frames your home's first impression. Higher tiers add premium ground cover, refined edging, and lighting to make this space work harder both aesthetically and functionally."
+    }
+  ],
+  "closing_paragraph": "We'd love to walk you through these options in person and answer any questions. Once you select a tier, we can typically begin work within two to three weeks. Please don't hesitate to reach out—we're excited to bring your backyard vision to life."
+}

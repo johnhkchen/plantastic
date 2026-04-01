@@ -3424,6 +3424,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "pt-scene"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "earcutr",
+ "pt-geo",
+ "pt-materials",
+ "pt-project",
+ "pt-test-utils",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "pt-solar"
 version = "0.1.0"
 dependencies = [
