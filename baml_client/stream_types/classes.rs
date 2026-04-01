@@ -68,6 +68,56 @@ impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
 
 #[derive(Debug, Clone, Default, BamlDecode)]
 
+pub struct PlantSelection {
+    pub common_name: Option<String>,
+
+    pub botanical_name: Option<String>,
+
+    pub spacing_inches: Option<f64>,
+
+    pub why_this_plant: Option<String>,
+}
+
+impl AsRef<PlantSelection> for PlantSelection {
+    fn as_ref(&self) -> &PlantSelection {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct PlanterEstimate {
+    pub styles: Vec<PlanterStyle>,
+}
+
+impl AsRef<PlanterEstimate> for PlanterEstimate {
+    fn as_ref(&self) -> &PlanterEstimate {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
+pub struct PlanterStyle {
+    pub style_name: Option<String>,
+
+    pub description: Option<String>,
+
+    pub plant_selections: Vec<PlantSelection>,
+
+    pub soil_depth_inches: Option<f64>,
+
+    pub design_rationale: Option<String>,
+}
+
+impl AsRef<PlanterStyle> for PlanterStyle {
+    fn as_ref(&self) -> &PlanterStyle {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default, BamlDecode)]
+
 pub struct ProposalContent {
     pub intro_paragraph: Option<String>,
 

@@ -68,6 +68,33 @@ impl TypeBuilder {
         )
     }
 
+    /// Access the `PlantSelection` class builder.
+    pub fn PlantSelection(&self) -> PlantSelectionClassBuilder {
+        PlantSelectionClassBuilder::new(
+            self.inner
+                .get_class("PlantSelection")
+                .expect("class PlantSelection is defined in schema"),
+        )
+    }
+
+    /// Access the `PlanterEstimate` class builder.
+    pub fn PlanterEstimate(&self) -> PlanterEstimateClassBuilder {
+        PlanterEstimateClassBuilder::new(
+            self.inner
+                .get_class("PlanterEstimate")
+                .expect("class PlanterEstimate is defined in schema"),
+        )
+    }
+
+    /// Access the `PlanterStyle` class builder.
+    pub fn PlanterStyle(&self) -> PlanterStyleClassBuilder {
+        PlanterStyleClassBuilder::new(
+            self.inner
+                .get_class("PlanterStyle")
+                .expect("class PlanterStyle is defined in schema"),
+        )
+    }
+
     /// Access the `ProposalContent` class builder.
     pub fn ProposalContent(&self) -> ProposalContentClassBuilder {
         ProposalContentClassBuilder::new(

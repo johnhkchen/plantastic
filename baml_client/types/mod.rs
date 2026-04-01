@@ -27,6 +27,12 @@ pub enum Types {
 
     FeatureCandidateInput(FeatureCandidateInput),
 
+    PlantSelection(PlantSelection),
+
+    PlanterEstimate(PlanterEstimate),
+
+    PlanterStyle(PlanterStyle),
+
     ProposalContent(ProposalContent),
 
     TierInput(TierInput),
@@ -48,6 +54,12 @@ impl baml::KnownTypes for Types {
             Types::ClassifiedFeature(_) => "ClassifiedFeature",
 
             Types::FeatureCandidateInput(_) => "FeatureCandidateInput",
+
+            Types::PlantSelection(_) => "PlantSelection",
+
+            Types::PlanterEstimate(_) => "PlanterEstimate",
+
+            Types::PlanterStyle(_) => "PlanterStyle",
 
             Types::ProposalContent(_) => "ProposalContent",
 

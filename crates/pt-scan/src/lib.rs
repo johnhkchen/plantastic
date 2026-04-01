@@ -4,6 +4,7 @@
 //! voxel downsampling), fits ground planes (RANSAC), and separates ground
 //! from obstacle points.
 
+pub mod annotate;
 pub mod cluster;
 pub mod error;
 pub mod export;
@@ -16,6 +17,10 @@ pub mod ransac;
 pub mod report;
 pub mod types;
 
+pub use annotate::{
+    annotate_plan_view_png, category_color, feature_annotation, AnnotationConfig,
+    ClassifiedFeatureRef, FeatureAnnotation,
+};
 pub use cluster::{Cluster, ClusterConfig, ClusterResult};
 pub use error::ScanError;
 pub use export::{generate_terrain, ExportConfig, TerrainMetadata, TerrainOutput};

@@ -173,6 +173,165 @@ impl FeatureCandidateInputClassBuilder {
     }
 }
 
+/// Wrapper for the `PlantSelection` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct PlantSelectionClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl PlantSelectionClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner
+            .as_type()
+            .expect("PlantSelection is statically defined in .baml and should always have a type")
+    }
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+    /// Access the `common_name` field builder.
+    pub fn property_common_name(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("common_name")
+            .expect("PlantSelection.common_name is statically defined in .baml and should always be present")
+    }
+
+    /// Access the `botanical_name` field builder.
+    pub fn property_botanical_name(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("botanical_name")
+            .expect("PlantSelection.botanical_name is statically defined in .baml and should always be present")
+    }
+
+    /// Access the `spacing_inches` field builder.
+    pub fn property_spacing_inches(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("spacing_inches")
+            .expect("PlantSelection.spacing_inches is statically defined in .baml and should always be present")
+    }
+
+    /// Access the `why_this_plant` field builder.
+    pub fn property_why_this_plant(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("why_this_plant")
+            .expect("PlantSelection.why_this_plant is statically defined in .baml and should always be present")
+    }
+}
+
+/// Wrapper for the `PlanterEstimate` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct PlanterEstimateClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl PlanterEstimateClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner
+            .as_type()
+            .expect("PlanterEstimate is statically defined in .baml and should always have a type")
+    }
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+    /// Access the `styles` field builder.
+    pub fn property_styles(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("styles").expect(
+            "PlanterEstimate.styles is statically defined in .baml and should always be present",
+        )
+    }
+}
+
+/// Wrapper for the `PlanterStyle` class builder.
+///
+/// Provides type-safe method access to fields defined in the schema.
+/// Access fields via methods: `builder.field_name()`
+
+pub struct PlanterStyleClassBuilder {
+    inner: baml::ClassBuilder,
+}
+
+impl PlanterStyleClassBuilder {
+    /// Create wrapper from runtime ClassBuilder.
+    pub(crate) fn new(inner: baml::ClassBuilder) -> Self {
+        Self { inner }
+    }
+
+    /// Get the underlying ClassBuilder.
+    pub fn inner(&self) -> &baml::ClassBuilder {
+        &self.inner
+    }
+
+    /// Get the class as a type definition.
+    pub fn r#type(&self) -> baml::TypeDef {
+        self.inner
+            .as_type()
+            .expect("PlanterStyle is statically defined in .baml and should always have a type")
+    }
+
+    // =========================================================================
+    // Field Accessors (1:1 with schema field names)
+    // =========================================================================
+
+    /// Access the `style_name` field builder.
+    pub fn property_style_name(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("style_name").expect(
+            "PlanterStyle.style_name is statically defined in .baml and should always be present",
+        )
+    }
+
+    /// Access the `description` field builder.
+    pub fn property_description(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("description").expect(
+            "PlanterStyle.description is statically defined in .baml and should always be present",
+        )
+    }
+
+    /// Access the `plant_selections` field builder.
+    pub fn property_plant_selections(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("plant_selections")
+            .expect("PlanterStyle.plant_selections is statically defined in .baml and should always be present")
+    }
+
+    /// Access the `soil_depth_inches` field builder.
+    pub fn property_soil_depth_inches(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("soil_depth_inches")
+            .expect("PlanterStyle.soil_depth_inches is statically defined in .baml and should always be present")
+    }
+
+    /// Access the `design_rationale` field builder.
+    pub fn property_design_rationale(&self) -> baml::ClassPropertyBuilder {
+        self.inner.get_property("design_rationale")
+            .expect("PlanterStyle.design_rationale is statically defined in .baml and should always be present")
+    }
+}
+
 /// Wrapper for the `ProposalContent` class builder.
 ///
 /// Provides type-safe method access to fields defined in the schema.

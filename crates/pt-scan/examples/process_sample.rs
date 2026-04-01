@@ -16,7 +16,10 @@ use std::time::Instant;
 
 use pt_scan::cluster::{cluster_obstacles, ClusterConfig};
 use pt_scan::export::ExportConfig;
-use pt_scan::{extract_candidates, measure_gaps, GapConfig, OutputInfo, ScanConfig};
+use pt_scan::{
+    annotate_plan_view_png, extract_candidates, feature_annotation, measure_gaps, AnnotationConfig,
+    ClassifiedFeatureRef, GapConfig, OutputInfo, ScanConfig,
+};
 
 const DEFAULT_PLY: &str = "assets/scans/samples/Scan at 09.23.ply";
 
@@ -197,6 +200,66 @@ fn main() {
         }
     }
 
+    // Stage 8: Annotated plan view (using mock classifier)
+    let stage_start = Instant::now();
+    let classifier = pt_features::MockFeatureClassifier;
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("failed to build tokio runtime");
+    let classified = rt
+        .block_on(pt_features::FeatureClassifier::classify(
+            &classifier,
+            &candidates,
+            "Example Site",
+            "USDA 10b",
+        ))
+        .expect("mock classification failed");
+
+    let annotations: Vec<_> = candidates
+        .iter()
+        .zip(classified.iter())
+        .map(|(cand, cls)| feature_annotation(cand, &ClassifiedFeatureAdapter(cls)))
+        .collect();
+
+    let annotated_png = if annotations.is_empty() {
+        None
+    } else {
+        Some(
+            annotate_plan_view_png(
+                &terrain.plan_view_png,
+                &annotations,
+                &cloud.metadata.bbox,
+                &AnnotationConfig::default(),
+            )
+            .expect("annotation failed"),
+        )
+    };
+    #[allow(clippy::cast_possible_truncation)]
+    let annotate_ms = stage_start.elapsed().as_millis() as u64;
+
+    println!(
+        "[8/8] Annotated plan view .. {annotate_ms}ms   {} features annotated",
+        annotations.len(),
+    );
+
+    if !classified.is_empty() {
+        println!();
+        println!("── Classified Features ───────────────────────────────");
+        for cls in &classified {
+            println!(
+                "  [{}] {} ({:.2}) — {}",
+                cls.category, cls.label, cls.confidence, cls.landscape_notes,
+            );
+        }
+    }
+
+    // Write annotated plan view
+    let annotated_png_path = parent.join(format!("{stem}-planview-annotated.png"));
+    if let Some(ref annotated) = annotated_png {
+        fs::write(&annotated_png_path, annotated).expect("failed to write annotated PNG");
+    }
+
     // Metadata summary
     println!();
     println!("── Metadata ──────────────────────────────────────────");
@@ -228,6 +291,16 @@ fn main() {
         png_path.display(),
         format_bytes(terrain.plan_view_png.len() as u64),
     );
+    if annotated_png.is_some() {
+        let annotated_size = fs::metadata(&annotated_png_path)
+            .map(|m| m.len())
+            .unwrap_or(0);
+        println!(
+            "Annotated: {} ({})",
+            annotated_png_path.display(),
+            format_bytes(annotated_size),
+        );
+    }
     println!(
         "Report: {} ({})",
         report_path.display(),
@@ -235,8 +308,26 @@ fn main() {
     );
     println!(
         "Total: {}ms",
-        report.timing.total_processing_ms + terrain_ms,
+        report.timing.total_processing_ms + terrain_ms + annotate_ms,
     );
+}
+
+/// Adapter to implement [`ClassifiedFeatureRef`] for pt-features' BAML-generated type.
+struct ClassifiedFeatureAdapter<'a>(&'a pt_features::ClassifiedFeature);
+
+impl ClassifiedFeatureRef for ClassifiedFeatureAdapter<'_> {
+    fn label(&self) -> &str {
+        &self.0.label
+    }
+    fn category(&self) -> &str {
+        &self.0.category
+    }
+    fn confidence(&self) -> f64 {
+        self.0.confidence
+    }
+    fn cluster_id(&self) -> i64 {
+        self.0.cluster_id
+    }
 }
 
 fn format_bytes(bytes: u64) -> String {

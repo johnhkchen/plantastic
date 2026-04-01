@@ -22,6 +22,12 @@ pub enum StreamTypes {
 
     FeatureCandidateInput(FeatureCandidateInput),
 
+    PlantSelection(PlantSelection),
+
+    PlanterEstimate(PlanterEstimate),
+
+    PlanterStyle(PlanterStyle),
+
     ProposalContent(ProposalContent),
 
     TierInput(TierInput),
@@ -43,6 +49,12 @@ impl baml::KnownTypes for StreamTypes {
             StreamTypes::ClassifiedFeature(_) => "ClassifiedFeature",
 
             StreamTypes::FeatureCandidateInput(_) => "FeatureCandidateInput",
+
+            StreamTypes::PlantSelection(_) => "PlantSelection",
+
+            StreamTypes::PlanterEstimate(_) => "PlanterEstimate",
+
+            StreamTypes::PlanterStyle(_) => "PlanterStyle",
 
             StreamTypes::ProposalContent(_) => "ProposalContent",
 

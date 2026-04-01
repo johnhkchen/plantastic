@@ -110,6 +110,8 @@ macro_rules! baml_function_sync {
 
 baml_function_sync!(ClassifyFeatures(candidates: &[types::FeatureCandidateInput], address: impl AsRef<str> + BamlEncode, climate_zone: impl AsRef<str> + BamlEncode, ) -> (Vec<stream_types::ClassifiedFeature>, Vec<types::ClassifiedFeature>));
 
+baml_function_sync!(EstimatePlanter(gap_width_ft: f64, gap_length_ft: f64, area_sqft: f64, adjacent_features: &[String], sun_hours: Option<i64>, climate_zone: impl AsRef<str> + BamlEncode, address: impl AsRef<str> + BamlEncode, ) -> (stream_types::PlanterEstimate, types::PlanterEstimate));
+
 baml_function_sync!(GenerateProposalNarrative(company_name: impl AsRef<str> + BamlEncode, project_name: impl AsRef<str> + BamlEncode, project_address: impl AsRef<str> + BamlEncode, tiers: &[types::TierInput], ) -> (stream_types::ProposalContent, types::ProposalContent));
 
 // =============================================================================
@@ -122,6 +124,8 @@ pub struct BamlSyncClient {
 
     pub ClassifyFeatures: ClassifyFeatures,
 
+    pub EstimatePlanter: EstimatePlanter,
+
     pub GenerateProposalNarrative: GenerateProposalNarrative,
 }
 
@@ -131,6 +135,8 @@ impl BamlSyncClient {
             options: FunctionOptions::new(),
 
             ClassifyFeatures: ClassifyFeatures::new(),
+
+            EstimatePlanter: EstimatePlanter::new(),
 
             GenerateProposalNarrative: GenerateProposalNarrative::new(),
         }
@@ -142,6 +148,10 @@ impl BamlSyncClient {
             options: options.clone(),
 
             ClassifyFeatures: ClassifyFeatures {
+                options: options.clone(),
+            },
+
+            EstimatePlanter: EstimatePlanter {
                 options: options.clone(),
             },
 

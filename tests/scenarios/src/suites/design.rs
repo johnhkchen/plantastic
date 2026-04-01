@@ -357,11 +357,129 @@ fn s_2_2_material_catalog() -> ScenarioOutcome {
     ScenarioOutcome::Pass(Integration::OneStar, Polish::FiveStar)
 }
 
+/// S.2.3 — Plant recommendations from measured gaps
+///
+/// Validates: measured gap between features → BAML estimates planter styles →
+/// code computes quantities and costs from LLM's spacing/depth values.
+/// The LLM picks plants (what + why); code computes quantities (how many + how much).
+///
+/// Uses MockPlanterEstimator for deterministic, zero-API-cost testing.
+/// All arithmetic verified independently — not derived from the system under test.
 fn s_2_3_plant_recommendations() -> ScenarioOutcome {
-    // Validates: zone with known sun exposure + climate → AI recommends plants →
-    //           recommendations scored correctly → contextual reasoning provided
-    // Requires: pt-plants, pt-solar, pt-climate, BAML AI layer
-    ScenarioOutcome::NotImplemented
+    use pt_planter::{compute_style, MockPlanterEstimator, PlanterEstimator, PlanterInput};
+    use rust_decimal::Decimal;
+    use std::str::FromStr;
+
+    // 1. Create a gap fixture matching the Powell & Market scenario.
+    //    Two London Plane trunks, 8ft clear width, 2.3ft length, 18.4 sqft.
+    let input = PlanterInput {
+        gap_width_ft: 8.0,
+        gap_length_ft: 2.3,
+        area_sqft: 18.4,
+        adjacent_features: vec![
+            "London Plane Tree".to_string(),
+            "London Plane Tree".to_string(),
+        ],
+        sun_hours: Some(4),
+        climate_zone: "USDA 10b / Sunset 17 — Mediterranean maritime".to_string(),
+        address: "Powell & Market Streets, San Francisco, CA".to_string(),
+    };
+
+    // 2. Run estimation via mock (deterministic, no LLM call).
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("tokio runtime");
+    let estimate = match rt.block_on(MockPlanterEstimator.estimate(&input)) {
+        Ok(e) => e,
+        Err(e) => return ScenarioOutcome::Fail(format!("estimation failed: {e}")),
+    };
+
+    // 3. Verify 3 styles returned.
+    if estimate.styles.len() != 3 {
+        return ScenarioOutcome::Fail(format!("expected 3 styles, got {}", estimate.styles.len()));
+    }
+
+    // 4. Verify each style has valid plant selections.
+    for style in &estimate.styles {
+        if style.plant_selections.len() < 2 {
+            return ScenarioOutcome::Fail(format!(
+                "style '{}' has {} plants, expected >=2",
+                style.style_name,
+                style.plant_selections.len()
+            ));
+        }
+        for sel in &style.plant_selections {
+            if sel.spacing_inches <= 0.0 {
+                return ScenarioOutcome::Fail(format!(
+                    "plant '{}' has non-positive spacing",
+                    sel.common_name
+                ));
+            }
+        }
+        if style.soil_depth_inches <= 0.0 {
+            return ScenarioOutcome::Fail(format!(
+                "style '{}' has non-positive soil depth",
+                style.style_name
+            ));
+        }
+    }
+
+    // 5. Compute quantities and costs, verify arithmetic independently.
+    let area = 18.4;
+    for style in &estimate.styles {
+        let computed = compute_style(style, area);
+
+        // Total must equal sum of plant costs + soil cost
+        let plant_total: Decimal = computed.plantings.iter().map(|p| p.plant_cost).sum();
+        let expected_total = plant_total + computed.soil_cost;
+        if computed.total_cost != expected_total {
+            return ScenarioOutcome::Fail(format!(
+                "style '{}': total {} != plant {} + soil {}",
+                computed.style_name, computed.total_cost, plant_total, computed.soil_cost
+            ));
+        }
+
+        // Each plant cost = count * unit_price
+        for planting in &computed.plantings {
+            let expected = Decimal::from(planting.plant_count) * planting.unit_price;
+            if planting.plant_cost != expected {
+                return ScenarioOutcome::Fail(format!(
+                    "plant '{}': cost {} != {} * {}",
+                    planting.common_name,
+                    planting.plant_cost,
+                    planting.plant_count,
+                    planting.unit_price,
+                ));
+            }
+        }
+
+        // Total must be positive
+        if computed.total_cost <= Decimal::ZERO {
+            return ScenarioOutcome::Fail(format!(
+                "style '{}' total cost should be positive",
+                computed.style_name
+            ));
+        }
+    }
+
+    // 6. Verify Style 1 soil volume independently.
+    //    Style 1 ("Drought-Tolerant Groundcover"): 4" soil depth.
+    //    Soil volume = 18.4 * 4 / (12 * 27) = 73.6 / 324 = 0.227 cuyd
+    let style_1 = compute_style(&estimate.styles[0], area);
+    let expected_soil = Decimal::from_str("0.227").unwrap();
+    let soil_diff = (style_1.soil_volume_cuyd - expected_soil).abs();
+    if soil_diff > Decimal::from_str("0.001").unwrap() {
+        return ScenarioOutcome::Fail(format!(
+            "style 1 soil volume: expected ~0.227, got {}",
+            style_1.soil_volume_cuyd
+        ));
+    }
+
+    // OneStar: planter estimation pipeline works in isolation (mock estimator +
+    // code-computed quantities). Path to TwoStar: real BAML call through API,
+    // integration with gap measurement from scan pipeline.
+    ScenarioOutcome::Pass(Integration::OneStar, Polish::OneStar)
 }
 
 /// S.2.4 — 3D preview per tier
