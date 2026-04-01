@@ -792,7 +792,7 @@ fn make_two_cluster_ply() -> Vec<u8> {
     buf.extend_from_slice(header.as_bytes());
 
     // Ground: z ≈ 0, spread [0, 8] × [0, 4]
-    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     let side = (ground_n as f32).sqrt().ceil() as usize;
     for i in 0..ground_n {
         let x = (i % side) as f32 * (8.0 / side as f32);
@@ -862,7 +862,11 @@ fn test_gap_measurement_synthetic() {
             &cloud.metadata.ground_plane,
         );
 
-        let gaps = measure_gaps(&candidates, &cloud.metadata.ground_plane, &GapConfig::default());
+        let gaps = measure_gaps(
+            &candidates,
+            &cloud.metadata.ground_plane,
+            &GapConfig::default(),
+        );
 
         // Two clusters ~4m apart = ~13.1ft. Should produce at least 1 gap.
         assert!(
@@ -938,7 +942,11 @@ fn test_powell_market_gaps() {
         &cloud.metadata.ground_plane,
     );
 
-    let gaps = measure_gaps(&candidates, &cloud.metadata.ground_plane, &GapConfig::default());
+    let gaps = measure_gaps(
+        &candidates,
+        &cloud.metadata.ground_plane,
+        &GapConfig::default(),
+    );
 
     eprintln!("Powell & Market gaps: {}", gaps.len());
     for g in &gaps {

@@ -24,8 +24,8 @@
 #[path = "../../../baml_client/mod.rs"]
 mod baml_client;
 
-pub mod claude_cli;
 mod classifier;
+pub mod claude_cli;
 mod error;
 mod mock;
 

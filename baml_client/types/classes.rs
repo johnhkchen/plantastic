@@ -3,51 +3,28 @@
 //
 // Learn more at https://docs.boundaryml.com
 
-
 //! Generated class types.
 
-use baml::{BamlEncode, BamlDecode};
 use super::*;
-
-
-
+use baml::{BamlDecode, BamlEncode};
 
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct ClassifiedFeature {
-
-
-
     pub cluster_id: i64,
-
-
 
     pub label: String,
 
-
-
     pub category: String,
-
-
 
     pub species: Option<String>,
 
-
-
     pub confidence: f64,
-
-
 
     pub reasoning: String,
 
-
-
     pub landscape_notes: String,
-
-
 }
-
-
 
 impl AsRef<ClassifiedFeature> for ClassifiedFeature {
     fn as_ref(&self) -> &ClassifiedFeature {
@@ -55,57 +32,29 @@ impl AsRef<ClassifiedFeature> for ClassifiedFeature {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct FeatureCandidateInput {
-
-
-
     pub cluster_id: i64,
-
-
 
     pub centroid_x: f64,
 
-
-
     pub centroid_y: f64,
-
-
 
     pub centroid_z: f64,
 
-
-
     pub height_ft: f64,
-
-
 
     pub spread_ft: f64,
 
-
-
     pub point_count: i64,
-
-
 
     pub dominant_color: String,
 
-
-
     pub vertical_profile: String,
 
-
-
     pub density: f64,
-
-
 }
-
-
 
 impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
     fn as_ref(&self) -> &FeatureCandidateInput {
@@ -113,33 +62,17 @@ impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct ProposalContent {
-
-
-
     pub intro_paragraph: String,
-
-
 
     pub tier_narratives: Vec<TierNarrative>,
 
-
-
     pub zone_callouts: Vec<ZoneCallout>,
 
-
-
     pub closing_paragraph: String,
-
-
 }
-
-
 
 impl AsRef<ProposalContent> for ProposalContent {
     fn as_ref(&self) -> &ProposalContent {
@@ -147,29 +80,15 @@ impl AsRef<ProposalContent> for ProposalContent {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct TierInput {
-
-
-
     pub tier_level: String,
-
-
 
     pub total: String,
 
-
-
     pub zones: Vec<ZoneSummary>,
-
-
 }
-
-
 
 impl AsRef<TierInput> for TierInput {
     fn as_ref(&self) -> &TierInput {
@@ -177,33 +96,17 @@ impl AsRef<TierInput> for TierInput {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct TierNarrative {
-
-
-
     pub tier_level: String,
-
-
 
     pub headline: String,
 
-
-
     pub description: String,
 
-
-
     pub differentiators: Vec<String>,
-
-
 }
-
-
 
 impl AsRef<TierNarrative> for TierNarrative {
     fn as_ref(&self) -> &TierNarrative {
@@ -211,25 +114,13 @@ impl AsRef<TierNarrative> for TierNarrative {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct ZoneCallout {
-
-
-
     pub zone_label: String,
 
-
-
     pub note: String,
-
-
 }
-
-
 
 impl AsRef<ZoneCallout> for ZoneCallout {
     fn as_ref(&self) -> &ZoneCallout {
@@ -237,37 +128,20 @@ impl AsRef<ZoneCallout> for ZoneCallout {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlEncode, BamlDecode)]
 
 pub struct ZoneSummary {
-
-
-
     pub label: String,
-
-
 
     pub zone_type: String,
 
-
-
     pub area_sqft: f64,
 
-
-
     pub materials: Vec<String>,
-
-
 }
-
-
 
 impl AsRef<ZoneSummary> for ZoneSummary {
     fn as_ref(&self) -> &ZoneSummary {
         self
     }
 }
-

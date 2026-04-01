@@ -3,56 +3,32 @@
 //
 // Learn more at https://docs.boundaryml.com
 
-
 //! Generated streaming class types.
 //!
 //! These types are used during streaming to hold partial results.
 //! Field types are already wrapped appropriately (Option, StreamState, etc.)
 
-use baml::BamlDecode;
-use crate::baml_client::types;
 use super::*;
-
-
-
-
+use crate::baml_client::types;
+use baml::BamlDecode;
 
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ClassifiedFeature {
-
-
-
     pub cluster_id: Option<i64>,
-
-
 
     pub label: Option<String>,
 
-
-
     pub category: Option<String>,
-
-
 
     pub species: Option<String>,
 
-
-
     pub confidence: Option<f64>,
-
-
 
     pub reasoning: Option<String>,
 
-
-
     pub landscape_notes: Option<String>,
-
-
 }
-
-
 
 impl AsRef<ClassifiedFeature> for ClassifiedFeature {
     fn as_ref(&self) -> &ClassifiedFeature {
@@ -60,57 +36,29 @@ impl AsRef<ClassifiedFeature> for ClassifiedFeature {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct FeatureCandidateInput {
-
-
-
     pub cluster_id: Option<i64>,
-
-
 
     pub centroid_x: Option<f64>,
 
-
-
     pub centroid_y: Option<f64>,
-
-
 
     pub centroid_z: Option<f64>,
 
-
-
     pub height_ft: Option<f64>,
-
-
 
     pub spread_ft: Option<f64>,
 
-
-
     pub point_count: Option<i64>,
-
-
 
     pub dominant_color: Option<String>,
 
-
-
     pub vertical_profile: Option<String>,
 
-
-
     pub density: Option<f64>,
-
-
 }
-
-
 
 impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
     fn as_ref(&self) -> &FeatureCandidateInput {
@@ -118,33 +66,17 @@ impl AsRef<FeatureCandidateInput> for FeatureCandidateInput {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ProposalContent {
-
-
-
     pub intro_paragraph: Option<String>,
-
-
 
     pub tier_narratives: Vec<TierNarrative>,
 
-
-
     pub zone_callouts: Vec<ZoneCallout>,
 
-
-
     pub closing_paragraph: Option<String>,
-
-
 }
-
-
 
 impl AsRef<ProposalContent> for ProposalContent {
     fn as_ref(&self) -> &ProposalContent {
@@ -152,29 +84,15 @@ impl AsRef<ProposalContent> for ProposalContent {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct TierInput {
-
-
-
     pub tier_level: Option<String>,
-
-
 
     pub total: Option<String>,
 
-
-
     pub zones: Vec<ZoneSummary>,
-
-
 }
-
-
 
 impl AsRef<TierInput> for TierInput {
     fn as_ref(&self) -> &TierInput {
@@ -182,33 +100,17 @@ impl AsRef<TierInput> for TierInput {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct TierNarrative {
-
-
-
     pub tier_level: Option<String>,
-
-
 
     pub headline: Option<String>,
 
-
-
     pub description: Option<String>,
 
-
-
     pub differentiators: Vec<String>,
-
-
 }
-
-
 
 impl AsRef<TierNarrative> for TierNarrative {
     fn as_ref(&self) -> &TierNarrative {
@@ -216,25 +118,13 @@ impl AsRef<TierNarrative> for TierNarrative {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ZoneCallout {
-
-
-
     pub zone_label: Option<String>,
 
-
-
     pub note: Option<String>,
-
-
 }
-
-
 
 impl AsRef<ZoneCallout> for ZoneCallout {
     fn as_ref(&self) -> &ZoneCallout {
@@ -242,37 +132,20 @@ impl AsRef<ZoneCallout> for ZoneCallout {
     }
 }
 
-
-
-
 #[derive(Debug, Clone, Default, BamlDecode)]
 
 pub struct ZoneSummary {
-
-
-
     pub label: Option<String>,
-
-
 
     pub zone_type: Option<String>,
 
-
-
     pub area_sqft: Option<f64>,
 
-
-
     pub materials: Vec<String>,
-
-
 }
-
-
 
 impl AsRef<ZoneSummary> for ZoneSummary {
     fn as_ref(&self) -> &ZoneSummary {
         self
     }
 }
-

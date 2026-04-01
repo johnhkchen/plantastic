@@ -50,74 +50,72 @@ impl TypeBuilder {
     // Schema Class Accessors (1:1 with schema class names)
     // =========================================================================
 
-
     /// Access the `ClassifiedFeature` class builder.
     pub fn ClassifiedFeature(&self) -> ClassifiedFeatureClassBuilder {
         ClassifiedFeatureClassBuilder::new(
-            self.inner.get_class("ClassifiedFeature")
-                .expect("class ClassifiedFeature is defined in schema")
+            self.inner
+                .get_class("ClassifiedFeature")
+                .expect("class ClassifiedFeature is defined in schema"),
         )
     }
-
 
     /// Access the `FeatureCandidateInput` class builder.
     pub fn FeatureCandidateInput(&self) -> FeatureCandidateInputClassBuilder {
         FeatureCandidateInputClassBuilder::new(
-            self.inner.get_class("FeatureCandidateInput")
-                .expect("class FeatureCandidateInput is defined in schema")
+            self.inner
+                .get_class("FeatureCandidateInput")
+                .expect("class FeatureCandidateInput is defined in schema"),
         )
     }
-
 
     /// Access the `ProposalContent` class builder.
     pub fn ProposalContent(&self) -> ProposalContentClassBuilder {
         ProposalContentClassBuilder::new(
-            self.inner.get_class("ProposalContent")
-                .expect("class ProposalContent is defined in schema")
+            self.inner
+                .get_class("ProposalContent")
+                .expect("class ProposalContent is defined in schema"),
         )
     }
-
 
     /// Access the `TierInput` class builder.
     pub fn TierInput(&self) -> TierInputClassBuilder {
         TierInputClassBuilder::new(
-            self.inner.get_class("TierInput")
-                .expect("class TierInput is defined in schema")
+            self.inner
+                .get_class("TierInput")
+                .expect("class TierInput is defined in schema"),
         )
     }
-
 
     /// Access the `TierNarrative` class builder.
     pub fn TierNarrative(&self) -> TierNarrativeClassBuilder {
         TierNarrativeClassBuilder::new(
-            self.inner.get_class("TierNarrative")
-                .expect("class TierNarrative is defined in schema")
+            self.inner
+                .get_class("TierNarrative")
+                .expect("class TierNarrative is defined in schema"),
         )
     }
-
 
     /// Access the `ZoneCallout` class builder.
     pub fn ZoneCallout(&self) -> ZoneCalloutClassBuilder {
         ZoneCalloutClassBuilder::new(
-            self.inner.get_class("ZoneCallout")
-                .expect("class ZoneCallout is defined in schema")
+            self.inner
+                .get_class("ZoneCallout")
+                .expect("class ZoneCallout is defined in schema"),
         )
     }
-
 
     /// Access the `ZoneSummary` class builder.
     pub fn ZoneSummary(&self) -> ZoneSummaryClassBuilder {
         ZoneSummaryClassBuilder::new(
-            self.inner.get_class("ZoneSummary")
-                .expect("class ZoneSummary is defined in schema")
+            self.inner
+                .get_class("ZoneSummary")
+                .expect("class ZoneSummary is defined in schema"),
         )
     }
-
 
     // =========================================================================
     // Schema Enum Accessors (1:1 with schema enum names)
     // =========================================================================
-
 
     // =========================================================================
     // Primitive Types (all infallible)

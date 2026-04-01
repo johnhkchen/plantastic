@@ -213,7 +213,10 @@ mod tests {
             let b = candidate(1, 0.3, 0.0, 4.0);
 
             let gaps = measure_gaps(&[a, b], &flat_ground(), &GapConfig::default());
-            assert!(gaps.is_empty(), "overlapping features should produce no gaps");
+            assert!(
+                gaps.is_empty(),
+                "overlapping features should produce no gaps"
+            );
         });
     }
 
