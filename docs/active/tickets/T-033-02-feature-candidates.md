@@ -5,7 +5,7 @@ title: feature-candidates
 type: task
 status: open
 priority: high
-phase: ready
+phase: done
 depends_on: [T-033-01]
 ---
 

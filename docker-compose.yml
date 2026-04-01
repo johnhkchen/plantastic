@@ -15,9 +15,11 @@
 
 services:
   db:
-    image: postgis/postgis:18-3.6
+    # imresamu/postgis provides multi-arch (arm64 + amd64) PostGIS images.
+    # The official postgis/postgis images are amd64-only.
+    image: imresamu/postgis:17-3.5
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: plantastic
       POSTGRES_USER: plantastic

@@ -14,8 +14,9 @@ use std::io::BufReader;
 use std::path::Path;
 use std::time::Instant;
 
+use pt_scan::cluster::{cluster_obstacles, ClusterConfig};
 use pt_scan::export::ExportConfig;
-use pt_scan::{OutputInfo, ScanConfig};
+use pt_scan::{extract_candidates, measure_gaps, GapConfig, OutputInfo, ScanConfig};
 
 const DEFAULT_PLY: &str = "assets/scans/samples/Scan at 09.23.ply";
 
@@ -119,6 +120,82 @@ fn main() {
 
     let report_json = serde_json::to_string_pretty(&report).expect("failed to serialize report");
     fs::write(&report_path, &report_json).expect("failed to write report JSON");
+
+    // Stage 6: Clustering + feature candidate extraction
+    let stage_start = Instant::now();
+    let cluster_config = ClusterConfig::default();
+    let cluster_result = cluster_obstacles(&cloud.obstacles, &cluster_config);
+    let candidates = extract_candidates(
+        &cluster_result.clusters,
+        &cloud.obstacles,
+        &cloud.metadata.ground_plane,
+    );
+    #[allow(clippy::cast_possible_truncation)]
+    let cluster_ms = stage_start.elapsed().as_millis() as u64;
+
+    println!(
+        "[6/6] Feature extraction .... {cluster_ms}ms   {} clusters, {} noise pts",
+        candidates.len(),
+        cluster_result.noise_indices.len(),
+    );
+
+    // Feature candidates table
+    if !candidates.is_empty() {
+        println!();
+        println!("── Feature Candidates ────────────────────────────────");
+        println!(
+            "{:>3}  {:>8}  {:>8}  {:>6}  {:>9}  {:>10}  {:>10}",
+            "ID", "Ht(ft)", "Sp(ft)", "Pts", "Density", "Color", "Profile"
+        );
+        for c in &candidates {
+            println!(
+                "{:>3}  {:>8.1}  {:>8.1}  {:>6}  {:>9.1}  {:>10}  {:>10}",
+                c.cluster_id,
+                c.height_ft,
+                c.spread_ft,
+                c.point_count,
+                c.density,
+                c.dominant_color,
+                c.vertical_profile,
+            );
+        }
+    }
+
+    // Stage 7: Gap measurement
+    let stage_start = Instant::now();
+    let gaps = measure_gaps(
+        &candidates,
+        &cloud.metadata.ground_plane,
+        &GapConfig::default(),
+    );
+    #[allow(clippy::cast_possible_truncation)]
+    let gap_ms = stage_start.elapsed().as_millis() as u64;
+
+    println!(
+        "[7/7] Gap measurement ...... {gap_ms}ms   {} gaps",
+        gaps.len(),
+    );
+
+    if !gaps.is_empty() {
+        println!();
+        println!("── Gaps ──────────────────────────────────────────────");
+        println!(
+            "{:>3} {:>3}  {:>9}  {:>9}  {:>9}  {:>9}  {:>8}",
+            "A", "B", "Dist(ft)", "Width(ft)", "Len(ft)", "Area(sf)", "Elev(ft)"
+        );
+        for g in &gaps {
+            println!(
+                "{:>3} {:>3}  {:>9.1}  {:>9.1}  {:>9.1}  {:>9.1}  {:>8.1}",
+                g.feature_a_id,
+                g.feature_b_id,
+                g.centroid_distance_ft,
+                g.clear_width_ft,
+                g.clear_length_ft,
+                g.area_sqft,
+                g.ground_elevation_ft,
+            );
+        }
+    }
 
     // Metadata summary
     println!();

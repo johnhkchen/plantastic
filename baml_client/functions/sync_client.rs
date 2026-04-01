@@ -5,10 +5,7 @@
 
 //! Synchronous BAML client with function-object pattern.
 
-use crate::baml_client::{
-    runtime::{get_runtime, FunctionOptions},
-    stream_types, types,
-};
+use crate::baml_client::{runtime::{get_runtime, FunctionOptions}, stream_types, types};
 use baml::{BamlEncode, BamlError, StreamingCall};
 
 // =============================================================================
@@ -108,7 +105,13 @@ macro_rules! baml_function_sync {
 // Generate function structs
 // =============================================================================
 
+
+
+baml_function_sync!(ClassifyFeatures(candidates: &[types::FeatureCandidateInput], address: impl AsRef<str> + BamlEncode, climate_zone: impl AsRef<str> + BamlEncode, ) -> (Vec<stream_types::ClassifiedFeature>, Vec<types::ClassifiedFeature>));
+
+
 baml_function_sync!(GenerateProposalNarrative(company_name: impl AsRef<str> + BamlEncode, project_name: impl AsRef<str> + BamlEncode, project_address: impl AsRef<str> + BamlEncode, tiers: &[types::TierInput], ) -> (stream_types::ProposalContent, types::ProposalContent));
+
 
 // =============================================================================
 // Client Struct
@@ -117,16 +120,22 @@ baml_function_sync!(GenerateProposalNarrative(company_name: impl AsRef<str> + Ba
 #[derive(Clone)]
 pub struct BamlSyncClient {
     options: FunctionOptions,
-
+    
+    pub ClassifyFeatures: ClassifyFeatures,
+    
     pub GenerateProposalNarrative: GenerateProposalNarrative,
+    
 }
 
 impl BamlSyncClient {
     pub const fn new() -> Self {
         Self {
             options: FunctionOptions::new(),
-
+            
+            ClassifyFeatures: ClassifyFeatures::new(),
+            
             GenerateProposalNarrative: GenerateProposalNarrative::new(),
+            
         }
     }
 
@@ -134,10 +143,11 @@ impl BamlSyncClient {
     pub fn with_options(&self, options: FunctionOptions) -> Self {
         Self {
             options: options.clone(),
-
-            GenerateProposalNarrative: GenerateProposalNarrative {
-                options: options.clone(),
-            },
+            
+            ClassifyFeatures: ClassifyFeatures { options: options.clone() },
+            
+            GenerateProposalNarrative: GenerateProposalNarrative { options: options.clone() },
+            
         }
     }
 }

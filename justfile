@@ -94,6 +94,10 @@ test-integration-ci:
 test-verbose:
     cargo test --workspace -- --nocapture
 
+# Run Playwright E2E tests (not part of `just check` — slow, needs WASM build)
+test-e2e:
+    cd web && npx playwright test
+
 # ─── Scenarios ──────────────────────────────────────────────────
 
 # Run the value delivery dashboard — the honest scoreboard.

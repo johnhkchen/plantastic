@@ -5,7 +5,7 @@ title: playwright-setup
 type: task
 status: open
 priority: high
-phase: research
+phase: done
 depends_on: []
 ---
 

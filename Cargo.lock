@@ -4229,6 +4229,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "pt-features"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "baml",
+ "pt-scan",
+ "pt-test-utils",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "pt-geo"
 version = "0.1.0"
 dependencies = [

@@ -5,7 +5,7 @@ title: baml-classify-features
 type: task
 status: open
 priority: high
-phase: ready
+phase: implement
 depends_on: [T-033-02]
 ---
 

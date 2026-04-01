@@ -68,7 +68,10 @@
 	});
 </script>
 
-<div class="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-900">
+<div
+	class="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-900"
+	data-viewer-ready={ready || undefined}
+>
 	<iframe
 		bind:this={iframeEl}
 		src="/viewer/index.html"

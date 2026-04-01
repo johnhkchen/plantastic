@@ -271,9 +271,10 @@ async fn s_infra_1_api() -> ScenarioOutcome {
         Ok(r) => r,
         Err(e) => return ScenarioOutcome::Fail(e),
     };
-    if status != StatusCode::OK {
+    // 200 or 204 are both valid for DELETE
+    if status != StatusCode::OK && status != StatusCode::NO_CONTENT {
         return ScenarioOutcome::Fail(format!(
-            "Step 8: DELETE /projects/{project_id}: expected 200, got {status}"
+            "Step 8: DELETE /projects/{project_id}: expected 200/204, got {status}"
         ));
     }
 
@@ -387,10 +388,10 @@ async fn s_infra_2_api() -> ScenarioOutcome {
         tenant_a,
         Some(json!({
             "name": "Tenant A Flagstone",
-            "category": "Hardscape",
-            "unit": "SqFt",
+            "category": "hardscape",
+            "unit": "sq_ft",
             "price_per_unit": "12.50",
-            "extrusion": { "SitsOnTop": { "height_inches": 2.0 } }
+            "extrusion": { "type": "sits_on_top", "height_inches": 2.0 }
         })),
     )
     .await

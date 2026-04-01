@@ -1,0 +1,60 @@
+{
+  "input": {
+    "filename": "Scan at 09.23.ply",
+    "file_size_bytes": 307881309,
+    "format": "ply",
+    "original_vertex_count": 20525406
+  },
+  "processing": {
+    "downsample_ratio": 0.005789313,
+    "downsampled_count": 122694,
+    "outliers_removed": 3866,
+    "ransac_iterations_config": 1000,
+    "ransac_best_iteration": 470
+  },
+  "ground": {
+    "plane": {
+      "normal": [
+        0.010487693,
+        0.9996638,
+        -0.023714418
+      ],
+      "d": 1.3545711
+    },
+    "point_count": 89165,
+    "area_estimate_sqm": 5.165794
+  },
+  "obstacles": {
+    "count": 29663,
+    "height_range": [
+      0.05000043,
+      2.6892638
+    ],
+    "bbox": {
+      "min": [
+        -6.65508,
+        -1.8709974,
+        -11.325317
+      ],
+      "max": [
+        5.876551,
+        1.3044708,
+        3.6360998
+      ]
+    }
+  },
+  "timing": {
+    "parse_ms": 48084,
+    "downsample_ms": 382,
+    "outlier_removal_ms": 384,
+    "ransac_ms": 34,
+    "total_processing_ms": 48886,
+    "terrain_export_ms": 60
+  },
+  "output": {
+    "glb_size_bytes": 1301432,
+    "png_size_bytes": 8512,
+    "triangle_count": 49998,
+    "vertex_count": 25015
+  }
+}

@@ -7,7 +7,9 @@
 pub mod cluster;
 pub mod error;
 pub mod export;
+pub mod feature;
 pub mod filter;
+pub mod gap;
 pub mod mesh;
 pub mod parser;
 pub mod ransac;
@@ -17,6 +19,8 @@ pub mod types;
 pub use cluster::{Cluster, ClusterConfig, ClusterResult};
 pub use error::ScanError;
 pub use export::{generate_terrain, ExportConfig, TerrainMetadata, TerrainOutput};
+pub use feature::{extract_candidates, FeatureCandidate};
+pub use gap::{measure_gaps, Gap, GapConfig};
 pub use mesh::{MeshConfig, TerrainMesh};
 pub use report::{
     GroundInfo, InputInfo, ObstacleInfo, OutputInfo, ProcessingInfo, ScanReport, StageTiming,

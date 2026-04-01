@@ -88,21 +88,24 @@ pub fn cluster_obstacles(points: &[Point], config: &ClusterConfig) -> ClusterRes
 
         // Start a new cluster
         labels[i] = Some(cluster_id);
-        let mut queue = neighbors;
-        let mut qi = 0;
 
-        while qi < queue.len() {
-            let j = queue[qi];
-            qi += 1;
+        // Use a VecDeque for the expansion queue; track membership via labels/visited
+        let mut queue = std::collections::VecDeque::with_capacity(neighbors.len());
+        for &nb in &neighbors {
+            if nb != i {
+                queue.push_back(nb);
+            }
+        }
 
+        while let Some(j) = queue.pop_front() {
             if !visited[j] {
                 visited[j] = true;
                 let j_neighbors = range_query(&tree, &positions[j], eps_sq);
                 if j_neighbors.len() >= config.min_points {
-                    // j is a core point — add its neighbors to the expansion queue
+                    // j is a core point — enqueue unvisited neighbors
                     for &nb in &j_neighbors {
-                        if labels[nb].is_none() && !queue.contains(&nb) {
-                            queue.push(nb);
+                        if !visited[nb] && labels[nb].is_none() {
+                            queue.push_back(nb);
                         }
                     }
                 }

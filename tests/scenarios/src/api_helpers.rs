@@ -37,12 +37,20 @@ pub async fn setup_db(pool: &PgPool) -> Result<(), String> {
     for entry in entries {
         let sql = std::fs::read_to_string(entry.path())
             .map_err(|e| format!("failed to read {}: {e}", entry.path().display()))?;
-        sqlx::raw_sql(&sql).execute(pool).await.map_err(|e| {
-            format!(
-                "migration {} failed: {e}",
-                entry.file_name().to_string_lossy()
-            )
-        })?;
+        match sqlx::raw_sql(&sql).execute(pool).await {
+            Ok(_) => {}
+            Err(e) => {
+                let msg = e.to_string();
+                // Idempotent: skip "already exists" errors from re-running migrations
+                if msg.contains("already exists") {
+                    continue;
+                }
+                return Err(format!(
+                    "migration {} failed: {e}",
+                    entry.file_name().to_string_lossy()
+                ));
+            }
+        }
     }
     Ok(())
 }
