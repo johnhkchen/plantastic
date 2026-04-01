@@ -3,10 +3,12 @@
 //! Merges three-tier quotes, BAML narrative content, and tenant branding
 //! into a professional PDF via an embedded Typst template.
 
+use pt_materials::Unit;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-
-use pt_materials::Unit;
+use typst::foundations::{Dict, IntoValue};
+use typst::layout::PagedDocument;
+use typst_as_lib::{typst_kit_options::TypstKitFontOptions, TypstEngine};
 
 use crate::error::ProposalError;
 use crate::ProposalContent;
@@ -24,7 +26,10 @@ pub struct TenantBranding {
 }
 
 /// Complete input for PDF rendering: quotes + narrative + branding.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// `ProposalContent` fields are flattened since the BAML-generated type
+/// doesn't implement serde traits. Construct via [`ProposalDocument::new`].
+#[derive(Debug, Clone)]
 pub struct ProposalDocument {
     pub project_name: String,
     pub project_address: String,
@@ -90,11 +95,9 @@ struct TemplateTierNarrative {
 fn format_dollars(d: Decimal) -> String {
     let is_negative = d < Decimal::ZERO;
     let abs = if is_negative { -d } else { d };
-    // Round to 2 decimal places.
     let rounded = abs.round_dp(2);
     let s = rounded.to_string();
 
-    // Split on decimal point.
     let (int_part, dec_part) = match s.split_once('.') {
         Some((i, d)) => (i.to_string(), format!("{d:0<2}")),
         None => (s.clone(), "00".to_string()),
@@ -194,20 +197,38 @@ static TEMPLATE: &str = include_str!("../templates/proposal.typ");
 
 /// Render a branded proposal PDF from quotes, narrative, and branding.
 ///
-/// Returns the raw PDF bytes on success.
-pub fn render_proposal(data: ProposalDocument) -> Result<Vec<u8>, ProposalError> {
-    use typst_as_lib::TypstTemplate;
-
-    let template_data = to_template_data(&data);
+/// Returns the raw PDF bytes on success. The template and fonts are
+/// embedded at compile time — no filesystem access needed at runtime.
+///
+/// # Errors
+///
+/// Returns `ProposalError::Render` if JSON serialization, Typst compilation,
+/// or PDF export fails.
+pub fn render_proposal(data: &ProposalDocument) -> Result<Vec<u8>, ProposalError> {
+    let template_data = to_template_data(data);
     let json_str =
         serde_json::to_string(&template_data).map_err(|e| ProposalError::Render(e.to_string()))?;
 
-    let template = TypstTemplate::new(vec![], TEMPLATE);
-    let doc = template
-        .compile_with_input(&[("data".to_string(), json_str.into())])
+    let engine = TypstEngine::builder()
+        .main_file(TEMPLATE)
+        .search_fonts_with(
+            TypstKitFontOptions::default()
+                .include_system_fonts(false)
+                .include_embedded_fonts(true),
+        )
+        .build();
+
+    let mut inputs = Dict::new();
+    inputs.insert("data".into(), json_str.into_value());
+
+    let doc: PagedDocument = engine
+        .compile_with_input(inputs)
+        .output
         .map_err(|e| ProposalError::Render(format!("{e:?}")))?;
-    let pdf_bytes = typst_as_lib::export_pdf(&doc)
-        .map_err(|e| ProposalError::Render(format!("{e:?}")))?;
+
+    let options = Default::default();
+    let pdf_bytes =
+        typst_pdf::pdf(&doc, &options).map_err(|e| ProposalError::Render(format!("{e:?}")))?;
 
     Ok(pdf_bytes)
 }
@@ -228,7 +249,10 @@ mod tests {
 
     #[test]
     fn format_dollars_large() {
-        assert_eq!(format_dollars(Decimal::new(1234567_89, 2)), "$1,234,567.89");
+        assert_eq!(
+            format_dollars(Decimal::new(123_456_789, 2)),
+            "$1,234,567.89"
+        );
     }
 
     #[test]

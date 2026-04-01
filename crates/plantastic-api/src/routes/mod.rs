@@ -5,6 +5,8 @@ pub mod materials;
 pub mod projects;
 pub mod quotes;
 pub mod scan;
+pub mod scenes;
+pub(crate) mod shared;
 pub mod tiers;
 pub mod zones;
 
@@ -23,6 +25,7 @@ pub fn router(state: AppState) -> Router {
         .merge(materials::routes())
         .merge(tiers::routes())
         .merge(quotes::routes())
+        .merge(scenes::routes())
         .merge(scan::routes())
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::permissive())

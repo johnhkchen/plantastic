@@ -1,7 +1,8 @@
 // Plantastic — Branded Landscape Proposal Template
 // Data arrives as JSON string via sys.inputs.data
 
-#let data = json(bytes(sys.inputs.data))
+#import sys: inputs
+#let data = json(bytes(inputs.data))
 
 // ── Page setup ───────────────────────────────────────────────────
 
@@ -15,7 +16,7 @@
   ],
 )
 
-#set text(font: "New Computer Modern", size: 10pt)
+#set text(size: 10pt)
 #set par(justify: true, leading: 0.65em)
 
 // ── Accent color ─────────────────────────────────────────────────
@@ -66,7 +67,7 @@
 
 // ── Intro paragraph ──────────────────────────────────────────────
 
-#data.narrative.intro_paragraph
+#data.intro_paragraph
 
 #v(16pt)
 
@@ -76,43 +77,35 @@
 
 #v(8pt)
 
-// Build a unified table: one row per zone per line-item, with columns for each tier.
-// We'll show a simplified comparison with per-tier totals.
-
 #{
-  // Collect all unique zones across tiers (use Good tier as canonical ordering)
   let good = data.tiers.at(0)
   let better = data.tiers.at(1)
   let best = data.tiers.at(2)
 
-  // Helper: find line items for a given zone label in a tier
-  let find_items(tier, zone_label) = {
-    tier.line_items.filter(it => it.zone_label == zone_label)
+  // Get unique zone labels in order from Good tier
+  let zone_labels = ()
+  for item in good.line_items {
+    if item.zone_label not in zone_labels {
+      zone_labels.push(item.zone_label)
+    }
   }
 
-  // Get unique zone labels in order from Good tier
-  let zone_labels = good.line_items.map(it => it.zone_label).dedup()
-
-  // Table header
-  let header = table.header(
-    table.cell(fill: accent.lighten(85%), text(weight: "bold")[Zone / Material]),
-    table.cell(fill: accent.lighten(85%), align(center, text(weight: "bold")[Good])),
-    table.cell(fill: accent.lighten(85%), align(center, text(weight: "bold")[Better])),
-    table.cell(fill: accent.lighten(85%), align(center, text(weight: "bold")[Best])),
-  )
+  // Helper to find items for a zone in a tier
+  let find_items(tier, label) = {
+    tier.line_items.filter(it => it.zone_label == label)
+  }
 
   // Build rows
   let rows = ()
+
   for zone_label in zone_labels {
     // Zone header row
     rows.push(table.cell(colspan: 4, fill: luma(245), text(weight: "bold", size: 9pt)[#zone_label]))
 
-    // Get items for this zone in each tier
     let g_items = find_items(good, zone_label)
     let b_items = find_items(better, zone_label)
     let bt_items = find_items(best, zone_label)
 
-    // Find max number of line items across tiers for this zone
     let max_items = calc.max(g_items.len(), b_items.len(), bt_items.len())
 
     for i in range(max_items) {
@@ -154,7 +147,12 @@
     column-gutter: 0pt,
     stroke: 0.5pt + luma(200),
     inset: 6pt,
-    header,
+    table.header(
+      table.cell(fill: accent.lighten(85%), text(weight: "bold")[Zone / Material]),
+      table.cell(fill: accent.lighten(85%), align(center, text(weight: "bold")[Good])),
+      table.cell(fill: accent.lighten(85%), align(center, text(weight: "bold")[Better])),
+      table.cell(fill: accent.lighten(85%), align(center, text(weight: "bold")[Best])),
+    ),
     ..rows,
   )
 }

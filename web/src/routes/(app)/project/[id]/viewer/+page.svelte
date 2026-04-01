@@ -1,25 +1,56 @@
 <script lang="ts">
 	import ErrorBanner from '$lib/components/ErrorBanner.svelte';
 	import Viewer from '$lib/components/viewer/Viewer.svelte';
+	import { apiFetch } from '$lib/api';
+	import type { LayoutData } from '../$types';
+
+	interface SceneResponse {
+		url: string;
+		metadata: { zone_count: number; triangle_count: number; tier: string };
+	}
+
+	let { data }: { data: LayoutData } = $props();
+	let projectId = $derived(data.id);
 
 	let tappedZone = $state<string | null>(null);
 	let activeTier = $state('good');
 	let lightAngle = $state(30);
 	let viewerError = $state<string | null>(null);
 	let viewerRef = $state<ReturnType<typeof Viewer>>();
-
-	// Tier scene URLs — all point to test scene until pt-scene generates real per-tier glTFs
-	const tierUrls: Record<string, string> = {
-		good: '/viewer/assets/models/test_scene.glb',
-		better: '/viewer/assets/models/test_scene.glb',
-		best: '/viewer/assets/models/test_scene.glb'
-	};
+	let sceneUrl = $state<string | null>(null);
+	let loading = $state(false);
 
 	const tiers = ['good', 'better', 'best'] as const;
 
-	function switchTier(tier: string) {
+	async function fetchScene(tier: string): Promise<string | null> {
+		try {
+			loading = true;
+			viewerError = null;
+			const resp = await apiFetch<SceneResponse>(`/projects/${projectId}/scene/${tier}`);
+			return resp.url;
+		} catch (e) {
+			viewerError = e instanceof Error ? e.message : 'Failed to load scene';
+			return null;
+		} finally {
+			loading = false;
+		}
+	}
+
+	// Load initial scene when viewer is ready
+	$effect(() => {
+		const id = projectId;
+		if (!id) return;
+		fetchScene(activeTier).then((url) => {
+			if (url) sceneUrl = url;
+		});
+	});
+
+	async function switchTier(tier: string) {
 		activeTier = tier;
-		viewerRef?.setTier(tier, tierUrls[tier]);
+		const url = await fetchScene(tier);
+		if (url) {
+			viewerRef?.setTier(tier, url);
+		}
 	}
 
 	function onSliderInput(e: Event) {
@@ -48,14 +79,20 @@
 		<ErrorBanner message={viewerError} />
 	{/if}
 
-	<Viewer
-		bind:this={viewerRef}
-		sceneUrl={tierUrls[activeTier]}
-		onZoneTapped={(id) => (tappedZone = id)}
-		onError={(msg) => (viewerError = msg)}
-		onLightAngleChanged={(degrees) => (lightAngle = degrees)}
-		onTierChanged={(tier) => (activeTier = tier)}
-	/>
+	{#if loading && !sceneUrl}
+		<div class="flex h-64 items-center justify-center text-text-secondary">
+			<span>Loading scene...</span>
+		</div>
+	{:else}
+		<Viewer
+			bind:this={viewerRef}
+			sceneUrl={sceneUrl ?? ''}
+			onZoneTapped={(id) => (tappedZone = id)}
+			onError={(msg) => (viewerError = msg)}
+			onLightAngleChanged={(degrees) => (lightAngle = degrees)}
+			onTierChanged={(tier) => (activeTier = tier)}
+		/>
+	{/if}
 
 	<!-- Tier Toggle -->
 	<div class="flex items-center gap-2">

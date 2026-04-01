@@ -5,7 +5,7 @@ title: scene-api-viewer-wiring
 type: task
 status: open
 priority: high
-phase: ready
+phase: implement
 depends_on: [T-031-01]
 ---
 

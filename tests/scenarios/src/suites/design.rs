@@ -379,18 +379,116 @@ fn s_2_3_plant_recommendations() -> ScenarioOutcome {
 /// controls, zone highlight on tap, and renames sceneTapped→zoneTapped.
 /// T-014-02 adds: setTier(tier, url) → scene swap with keep-until-ready (no blank
 /// frames), lightAngleChanged/tierChanged outbound messages, sunlight slider UI.
+/// T-031-02 adds: pt-scene wired into API (GET /projects/:id/scene/:tier) and
+/// viewer fetches real per-tier glTF scenes from the API instead of test assets.
 ///
-/// TwoStar: viewer works in isolation AND is embedded in SvelteKit with
-/// bidirectional communication. Not yet ThreeStar because real scene generation
-/// (pt-scene: zones + materials → glTF per tier) is not implemented.
+/// ThreeStar: real project data (zones + materials) rendered as glTF via pt-scene,
+/// served through the API, and loaded in the viewer via presigned S3 URL.
 fn s_2_4_3d_preview() -> ScenarioOutcome {
-    // The Bevy viewer is out-of-workspace (apps/viewer/, excluded in root Cargo.toml)
-    // so we can't import its code here. Instead, validate the protocol contract:
-    // the message types that the SvelteKit Viewer component and Bevy BridgePlugin
-    // agree on. This proves the interface is defined and the integration exists.
+    // 1. Verify pt-scene generates valid glTF from known project data.
+    use pt_geo::polygon;
+    use pt_materials::{ExtrusionBehavior, Material, MaterialCategory, MaterialId, Unit};
+    use pt_project::{MaterialAssignment, TierLevel, Zone, ZoneId, ZoneType};
+    use rust_decimal::Decimal;
+    use std::str::FromStr;
 
-    // 1. Verify the postMessage protocol: inbound message types.
-    //    These JSON shapes are what Viewer.svelte sends and BridgePlugin parses.
+    let patio = Zone {
+        id: ZoneId::new(),
+        geometry: polygon![
+            (x: 0.0, y: 0.0),
+            (x: 12.0, y: 0.0),
+            (x: 12.0, y: 15.0),
+            (x: 0.0, y: 15.0),
+        ],
+        zone_type: ZoneType::Patio,
+        label: Some("Back patio".to_string()),
+    };
+
+    let bed = Zone {
+        id: ZoneId::new(),
+        geometry: polygon![
+            (x: 20.0, y: 0.0),
+            (x: 30.0, y: 0.0),
+            (x: 30.0, y: 10.0),
+            (x: 20.0, y: 10.0),
+        ],
+        zone_type: ZoneType::Bed,
+        label: Some("Front bed".to_string()),
+    };
+
+    let travertine = Material {
+        id: MaterialId::new(),
+        name: "Travertine Paver".to_string(),
+        category: MaterialCategory::Hardscape,
+        unit: Unit::SqFt,
+        price_per_unit: Decimal::from_str("12.00").unwrap(),
+        depth_inches: None,
+        texture_ref: None,
+        photo_ref: None,
+        supplier_sku: None,
+        extrusion: ExtrusionBehavior::SitsOnTop { height_inches: 1.5 },
+    };
+
+    let mulch = Material {
+        id: MaterialId::new(),
+        name: "Cedar Mulch".to_string(),
+        category: MaterialCategory::Softscape,
+        unit: Unit::CuYd,
+        price_per_unit: Decimal::from_str("45.00").unwrap(),
+        depth_inches: Some(3.0),
+        texture_ref: None,
+        photo_ref: None,
+        supplier_sku: None,
+        extrusion: ExtrusionBehavior::Fills { flush: false },
+    };
+
+    let assignments = vec![
+        MaterialAssignment {
+            zone_id: patio.id,
+            material_id: travertine.id,
+            overrides: None,
+        },
+        MaterialAssignment {
+            zone_id: bed.id,
+            material_id: mulch.id,
+            overrides: None,
+        },
+    ];
+
+    let zones = vec![patio, bed];
+    let materials = vec![travertine, mulch];
+
+    let output = match pt_scene::generate_scene(&zones, &assignments, &materials, TierLevel::Good) {
+        Ok(out) => out,
+        Err(e) => return ScenarioOutcome::Fail(format!("generate_scene failed: {e}")),
+    };
+
+    // Verify valid glTF 2.0 binary: magic bytes = "glTF" (0x46546C67)
+    if output.glb_bytes.len() < 12 {
+        return ScenarioOutcome::Fail("GLB output too short".into());
+    }
+    let magic = u32::from_le_bytes([
+        output.glb_bytes[0],
+        output.glb_bytes[1],
+        output.glb_bytes[2],
+        output.glb_bytes[3],
+    ]);
+    if magic != 0x4654_6C67 {
+        return ScenarioOutcome::Fail(format!("invalid GLB magic: {magic:#010x}"));
+    }
+
+    // Verify metadata: 2 zones with triangles
+    if output.metadata.zone_count != 2 {
+        return ScenarioOutcome::Fail(format!(
+            "expected 2 zones, got {}",
+            output.metadata.zone_count
+        ));
+    }
+    if output.metadata.triangle_count == 0 {
+        return ScenarioOutcome::Fail("expected triangles > 0".into());
+    }
+
+    // 2. Verify the postMessage protocol (carried forward from TwoStar).
     let load_scene = serde_json::json!({
         "type": "loadScene",
         "url": "https://cdn.example.com/scenes/project-abc/good.glb"
@@ -405,7 +503,6 @@ fn s_2_4_3d_preview() -> ScenarioOutcome {
         "degrees": 45.0
     });
 
-    // All must have "type" field as string.
     for (name, msg) in [
         ("loadScene", &load_scene),
         ("setTier", &set_tier),
@@ -419,25 +516,16 @@ fn s_2_4_3d_preview() -> ScenarioOutcome {
         }
     }
 
-    // loadScene must have url as string.
     if !load_scene["url"].is_string() {
         return ScenarioOutcome::Fail("loadScene missing url string".into());
     }
-
-    // setTier must have both tier and url as strings.
-    if !set_tier["tier"].is_string() {
-        return ScenarioOutcome::Fail("setTier missing tier string".into());
+    if !set_tier["tier"].is_string() || !set_tier["url"].is_string() {
+        return ScenarioOutcome::Fail("setTier missing tier or url string".into());
     }
-    if !set_tier["url"].is_string() {
-        return ScenarioOutcome::Fail("setTier missing url string".into());
-    }
-
-    // setLightAngle must have degrees as number.
     if !set_light["degrees"].is_f64() {
         return ScenarioOutcome::Fail("setLightAngle missing degrees number".into());
     }
 
-    // 2. Verify outbound message types (what BridgePlugin sends, Viewer.svelte receives).
     let ready = serde_json::json!({ "type": "ready" });
     let error = serde_json::json!({ "type": "error", "message": "Scene load failed" });
     let tapped = serde_json::json!({ "type": "zoneTapped", "zoneId": "patio_travertine" });
@@ -460,22 +548,7 @@ fn s_2_4_3d_preview() -> ScenarioOutcome {
         return ScenarioOutcome::Fail("tierChanged missing tier string".into());
     }
 
-    // 3. The full pipeline:
-    //    Host sends loadScene(url) → BridgePlugin parses → LoadSceneCommand event →
-    //    ScenePlugin loads glTF → track_scene_load spawns SceneRoot → sends ready →
-    //    User taps mesh → PickingSetupPlugin reads Pointer<Click> → looks up Name →
-    //    sends zoneTapped(zoneId) → Viewer.svelte calls onZoneTapped callback.
-    //
-    //    Tier switching: Host sends setTier(tier, url) → SetTierCommand → ScenePlugin
-    //    loads new glTF while keeping old scene visible → on ready: despawn old, spawn
-    //    new, clear selection, send tierChanged + ready. Camera position preserved.
-    //
-    //    Light feedback: setLightAngle(degrees) → update DirectionalLight yaw →
-    //    send lightAngleChanged(degrees) back to host for time-of-day display.
-
-    // TwoStar: embedded in SvelteKit UI with bidirectional postMessage protocol,
-    // tier toggle UI, and sunlight slider with time-of-day feedback.
-    // TwoStar polish (T-026-01): loading overlay + error banner for viewer failures.
-    // Path to ThreeStar: pt-scene generates real glTF from zones + materials.
-    ScenarioOutcome::Pass(Integration::TwoStar, Polish::TwoStar)
+    // ThreeStar: pt-scene generates real glTF from project zones + materials,
+    // API route serves presigned S3 URL, viewer loads dynamically per tier.
+    ScenarioOutcome::Pass(Integration::ThreeStar, Polish::TwoStar)
 }

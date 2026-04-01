@@ -212,6 +212,56 @@ deploy stage="dev":
 smoke url:
     ./scripts/verify-deploy.sh {{url}}
 
+# Scene generation smoke test (requires running API + Postgres)
+# Creates a project with zones + materials, then fetches a scene to verify the pipeline.
+smoke-scene url="http://localhost:3000":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Scene smoke test against {{url}}..."
+    TENANT="00000000-0000-0000-0000-000000000001"
+    # Create a project
+    PROJECT=$(curl -sf -X POST "{{url}}/projects" \
+        -H "Content-Type: application/json" \
+        -H "X-Tenant-Id: $TENANT" \
+        -d '{"client_name":"Smoke Test","address":"123 Test St"}' | jq -r '.id')
+    echo "  Created project: $PROJECT"
+    # Add a zone
+    curl -sf -X POST "{{url}}/projects/$PROJECT/zones" \
+        -H "Content-Type: application/json" \
+        -H "X-Tenant-Id: $TENANT" \
+        -d '[{"geometry":{"type":"Polygon","coordinates":[[[0,0],[12,0],[12,15],[0,15],[0,0]]]},"zone_type":"patio","label":"Test Patio"}]' > /dev/null
+    echo "  Added zone"
+    # Create a material
+    MAT=$(curl -sf -X POST "{{url}}/materials" \
+        -H "Content-Type: application/json" \
+        -H "X-Tenant-Id: $TENANT" \
+        -d '{"name":"Test Paver","category":"hardscape","unit":"sq_ft","price_per_unit":"8.50","extrusion":{"type":"sits_on_top","height_inches":1.5}}' | jq -r '.id')
+    echo "  Created material: $MAT"
+    # Assign material to tier
+    ZONES=$(curl -sf "{{url}}/projects/$PROJECT/zones" -H "X-Tenant-Id: $TENANT" | jq -r '.[0].id')
+    curl -sf -X PUT "{{url}}/projects/$PROJECT/tiers/good" \
+        -H "Content-Type: application/json" \
+        -H "X-Tenant-Id: $TENANT" \
+        -d "[{\"zone_id\":\"$ZONES\",\"material_id\":\"$MAT\"}]" > /dev/null
+    echo "  Assigned material to tier"
+    # Fetch scene
+    SCENE=$(curl -sf "{{url}}/projects/$PROJECT/scene/good" -H "X-Tenant-Id: $TENANT")
+    URL=$(echo "$SCENE" | jq -r '.url')
+    ZONES_COUNT=$(echo "$SCENE" | jq -r '.metadata.zone_count')
+    TRIANGLES=$(echo "$SCENE" | jq -r '.metadata.triangle_count')
+    echo "  Scene generated: $ZONES_COUNT zones, $TRIANGLES triangles"
+    echo "  URL: ${URL:0:80}..."
+    # Verify GLB is downloadable
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+    if [ "$STATUS" != "200" ]; then
+        echo "  FAIL: GLB download returned $STATUS"
+        exit 1
+    fi
+    echo "  GLB download OK"
+    # Cleanup
+    curl -sf -X DELETE "{{url}}/projects/$PROJECT" -H "X-Tenant-Id: $TENANT" > /dev/null
+    echo "Scene smoke test passed."
+
 # Verify Neon database setup (requires direct + pooled connection URLs)
 verify-neon direct pooled:
     ./scripts/verify-neon.sh {{direct}} {{pooled}}

@@ -13,7 +13,9 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
+typst.workspace = true
 typst-as-lib.workspace = true
+typst-pdf.workspace = true
 
 [dependencies.pt-materials]
 path = "../pt-materials"
@@ -22,6 +24,7 @@ path = "../pt-materials"
 path = "../pt-quote"
 
 [dev-dependencies]
+pt-project = { path = "../pt-project" }
 pt-test-utils = { path = "../pt-test-utils" }
 
 [[example]]

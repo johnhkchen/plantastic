@@ -16,6 +16,7 @@ pt-project = { path = "../../crates/pt-project" }
 pt-materials = { path = "../../crates/pt-materials" }
 pt-quote = { path = "../../crates/pt-quote" }
 pt-scan = { path = "../../crates/pt-scan" }
+pt-scene = { path = "../../crates/pt-scene" }
 pt-satellite = { path = "../../crates/pt-satellite" }
 pt-solar = { path = "../../crates/pt-solar" }
 pt-proposal = { path = "../../crates/pt-proposal" }

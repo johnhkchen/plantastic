@@ -10,4 +10,8 @@ pub enum ProposalError {
     /// Input validation failed.
     #[error("invalid input: {0}")]
     InvalidInput(String),
+
+    /// PDF rendering (Typst compilation or export) failed.
+    #[error("PDF rendering failed: {0}")]
+    Render(String),
 }

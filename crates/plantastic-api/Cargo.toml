@@ -38,6 +38,7 @@ pt-geo = { path = "../pt-geo" }
 pt-quote = { path = "../pt-quote" }
 pt-proposal = { path = "../pt-proposal" }
 pt-scan = { path = "../pt-scan" }
+pt-scene = { path = "../pt-scene" }
 aws-sdk-s3 = { workspace = true }
 aws-config = { workspace = true }
 dashmap = { workspace = true }

@@ -151,9 +151,18 @@ pub static MILESTONES: &[Milestone] = &[
     },
     Milestone {
         label: "pt-scene: 3D scene generation from project model",
-        delivered_by: None,
+        delivered_by: Some("T-031-02"),
         unlocks: &["S.2.4", "S.4.1"],
-        note: "",
+        note: "T-031-01 delivered pt-scene crate: generate_scene(zones, assignments, materials, tier) \
+               → SceneOutput with glb_bytes (binary glTF 2.0) and SceneMetadata (zone_count, \
+               triangle_count, tier). T-031-02 wires it into the API and viewer: \
+               GET /projects/{id}/scene/{tier} route loads project data, runs generate_scene via \
+               spawn_blocking, uploads GLB to S3 (scenes/{project_id}/{tier}.glb), returns presigned \
+               URL + metadata. Viewer page fetches scene URL on load and tier switch, passes to \
+               Bevy iframe via loadScene/setTier postMessage. Shared type conversion helpers \
+               (zone_rows_to_zones, material_rows_to_materials, build_tier) extracted to shared.rs \
+               for reuse across quote and scene routes. S.2.4 advances to ThreeStar. \
+               S.4.1 still needs crew export format integration.",
     },
     // ── Quoting ─────────────────────────────────────────────────
     Milestone {

@@ -81,6 +81,28 @@ impl From<pt_proposal::ProposalError> for AppError {
             pt_proposal::ProposalError::Generation(msg) => {
                 Self::Internal(format!("proposal generation failed: {msg}"))
             }
+            pt_proposal::ProposalError::Render(msg) => {
+                Self::Internal(format!("PDF rendering failed: {msg}"))
+            }
+        }
+    }
+}
+
+impl From<pt_scene::SceneError> for AppError {
+    fn from(e: pt_scene::SceneError) -> Self {
+        match e {
+            pt_scene::SceneError::MissingMaterial {
+                zone_id,
+                material_id,
+            } => Self::BadRequest(format!(
+                "material {material_id} not found for zone {zone_id}"
+            )),
+            pt_scene::SceneError::Triangulation(msg) => {
+                Self::Internal(format!("triangulation failed: {msg}"))
+            }
+            pt_scene::SceneError::Export(msg) => {
+                Self::Internal(format!("scene export failed: {msg}"))
+            }
         }
     }
 }
